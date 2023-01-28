@@ -37,6 +37,10 @@ task consumerJar(type: Jar) {
     from sourceSets.consumer.output
     archiveVersion.set(project.version.toString())
     archiveBaseName.set('consumer')
+
+    manifest {
+        attributes('Plugin-Entrypoint': 'work.lclpnet.consumer.Consumer')
+    }
 }
 
 artifacts {

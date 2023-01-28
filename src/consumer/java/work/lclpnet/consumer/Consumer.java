@@ -5,6 +5,11 @@ import work.lclpnet.provider.Plugin;
 public class Consumer implements Plugin {
 
     @Override
+    public String getIdentifier() {
+        return "testPlugin";
+    }
+
+    @Override
     public void load() {
         System.out.println("Load.");
     }
