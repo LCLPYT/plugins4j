@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+group 'work.lclpnet.loader4j'
+version '1.0.0'
+archivesBaseName = 'provider'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+sourceSets {
+    consumer {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+        }
+    }
+}
+
+configurations {
+    consumerImplementation.extendsFrom(testImplementation)
+    consumerRuntimeOnly.extendsFrom(testRuntimeOnly)
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task consumerJar(type: Jar) {
+    from sourceSets.consumer.output
+    archiveVersion.set(project.version.toString())
+    archiveBaseName.set('consumer')
+}
+
+artifacts {
+    archives consumerJar
+}
