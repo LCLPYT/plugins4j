@@ -1,6 +1,6 @@
 package work.lclpnet.consumer;
 
-import work.lclpnet.provider.Plugin;
+import work.lclpnet.provider.plugin.Plugin;
 
 public class Consumer implements Plugin {
 

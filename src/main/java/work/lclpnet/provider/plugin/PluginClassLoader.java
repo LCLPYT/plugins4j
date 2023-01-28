@@ -1,4 +1,4 @@
-package work.lclpnet.provider;
+package work.lclpnet.provider.plugin;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;

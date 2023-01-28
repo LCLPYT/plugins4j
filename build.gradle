@@ -33,6 +33,12 @@ test {
     useJUnitPlatform()
 }
 
+jar {
+    manifest {
+        attributes('Main-Class': 'work.lclpnet.provider.Main')
+    }
+}
+
 task consumerJar(type: Jar) {
     from sourceSets.consumer.output
     archiveVersion.set(project.version.toString())
