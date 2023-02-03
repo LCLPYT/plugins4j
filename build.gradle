@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
 plugins {
     id 'java'
 }
@@ -51,4 +54,60 @@ task consumerJar(type: Jar) {
 
 artifacts {
     archives consumerJar
+}
+
+abstract class DeployTask extends DefaultTask {
+    @TaskAction
+    def deploy() {
+        final def proj = this.getProject()
+        final def libsDir = proj.getBuildDir().toPath().resolve('libs')
+        final def version = proj.getVersion()
+
+        def provider = 'provider-%s.jar'.formatted(version)
+
+        final def runDir = proj.getProjectDir().toPath().resolve('run')
+        if (!Files.exists(runDir)) Files.createDirectories(runDir)
+
+        Files.copy(libsDir.resolve(provider), runDir.resolve(provider), StandardCopyOption.REPLACE_EXISTING)
+
+        println('Files have been deployed to %s'.formatted(runDir))
+    }
+}
+
+tasks.register("deploy", DeployTask)
+
+abstract class DeployPluginsTask extends DefaultTask {
+    @TaskAction
+    def execute() {
+        final def proj = this.getProject()
+        final def libsDir = proj.getBuildDir().toPath().resolve('libs')
+        final def version = proj.getVersion()
+
+        final def pluginsDir = proj.getProjectDir().toPath().resolve('run/plugins')
+        copyPlugins(libsDir, pluginsDir, version)
+
+        println('Plugins have been deployed to %s'.formatted(pluginsDir))
+    }
+
+    static def copyPlugins(java.nio.file.Path libsDir, java.nio.file.Path pluginsDir, version) {
+        if (!Files.exists(pluginsDir)) Files.createDirectories(pluginsDir)
+
+        def plugins = ['consumer']
+
+        plugins.forEach(plugin -> {
+            def consumer = '%s-%s.jar'.formatted(plugin, version)
+            Files.copy(libsDir.resolve(consumer), pluginsDir.resolve(consumer), StandardCopyOption.REPLACE_EXISTING)
+        })
+    }
+}
+
+tasks.register('deployPlugins', DeployPluginsTask)
+
+deploy.configure {
+    dependsOn build
+    dependsOn deployPlugins
+}
+
+deployPlugins.configure {
+    dependsOn build
 }
