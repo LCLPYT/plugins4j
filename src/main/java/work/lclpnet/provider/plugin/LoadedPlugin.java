@@ -1,22 +1,32 @@
 package work.lclpnet.provider.plugin;
 
-import java.nio.file.Path;
+import work.lclpnet.provider.plugin.manifest.PluginManifest;
 
 public class LoadedPlugin {
 
-    public final Path file;
     private Plugin plugin;
+    private final Object source;
+    private final PluginManifest manifest;
 
-    public LoadedPlugin(Plugin plugin, Path file) {
+    public LoadedPlugin(Plugin plugin, Object source, PluginManifest manifest) {
         this.plugin = plugin;
-        this.file = file;
+        this.source = source;
+        this.manifest = manifest;
     }
 
     public Plugin getPlugin() {
         return plugin;
     }
 
-    public void dereference() {
+    public void remove() {
         this.plugin = null;
+    }
+
+    public Object getSource() {
+        return source;
+    }
+
+    public PluginManifest getManifest() {
+        return manifest;
     }
 }

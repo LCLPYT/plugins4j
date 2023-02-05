@@ -3,6 +3,7 @@ import java.nio.file.StandardCopyOption
 
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group 'work.lclpnet.loader4j'
@@ -14,6 +15,10 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.apache.logging.log4j:log4j-api:2.19.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
+    implementation 'org.json:json:20220924'
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
@@ -46,15 +51,23 @@ task consumerJar(type: Jar) {
     from sourceSets.consumer.output
     archiveVersion.set(project.version.toString())
     archiveBaseName.set('consumer')
-
-    manifest {
-        attributes('Plugin-Entrypoint': 'work.lclpnet.consumer.Consumer')
-    }
 }
 
 artifacts {
     archives consumerJar
 }
+
+shadowJar {
+    archiveClassifier.set('full')
+
+    dependencies {
+        include(dependency('org.apache.logging.log4j:log4j-core:.*'))
+        include(dependency('org.apache.logging.log4j:log4j-api:.*'))
+        include(dependency('org.json:json:.*'))
+    }
+}
+
+tasks.build.dependsOn tasks.shadowJar
 
 abstract class DeployTask extends DefaultTask {
     @TaskAction
@@ -63,7 +76,7 @@ abstract class DeployTask extends DefaultTask {
         final def libsDir = proj.getBuildDir().toPath().resolve('libs')
         final def version = proj.getVersion()
 
-        def provider = 'provider-%s.jar'.formatted(version)
+        def provider = 'provider-%s-full.jar'.formatted(version)
 
         final def runDir = proj.getProjectDir().toPath().resolve('run')
         if (!Files.exists(runDir)) Files.createDirectories(runDir)

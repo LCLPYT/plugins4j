@@ -1,7 +1,10 @@
 package work.lclpnet.provider;
 
 import work.lclpnet.provider.plugin.PluginManager;
+import work.lclpnet.provider.plugin.load.PluginAlreadyLoadedException;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
@@ -30,7 +33,13 @@ public class Cli {
                 running = false;
                 break;
             }
-            handleInput(line);
+
+            try {
+                handleInput(line);
+            } catch (Throwable t) {
+                System.err.println("Error executing command:");
+                t.printStackTrace(System.err);
+            }
         }
     }
 
@@ -58,11 +67,16 @@ public class Cli {
             return;
         }
 
-        pluginManager.loadPlugin(path);
+        try {
+            pluginManager.loadPlugin(path);
+        } catch (PluginAlreadyLoadedException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     private void unloadPlugin(String[] args) {
         final var plugin = pluginManager.getPlugin(args[1]);
+
         if (plugin.isEmpty()) {
             System.err.println("Plugin not loaded");
             return;
@@ -73,6 +87,7 @@ public class Cli {
 
     private void reloadPlugin(String[] args) {
         final var plugin = pluginManager.getPlugin(args[1]);
+
         if (plugin.isEmpty()) {
             System.err.println("File does not exist");
             return;
