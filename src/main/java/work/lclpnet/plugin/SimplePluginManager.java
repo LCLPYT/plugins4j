@@ -7,6 +7,7 @@ import work.lclpnet.plugin.load.PluginLoadException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
 
 public class SimplePluginManager implements PluginManager {
 
@@ -59,5 +60,15 @@ public class SimplePluginManager implements PluginManager {
     public void reloadPlugin(LoadedPlugin loaded) {
         unloadPlugin(loaded);
         loadPlugin(loaded.getSource());
+    }
+
+    @Override
+    public boolean isPluginLoaded(String identifier) {
+        return pluginContainer.isPluginLoaded(identifier);
+    }
+
+    @Override
+    public Set<LoadedPlugin> getPlugins() {
+        return pluginContainer.getPlugins();
     }
 }

@@ -1,6 +1,7 @@
 package work.lclpnet.plugin;
 
 import java.util.Optional;
+import java.util.Set;
 
 public interface PluginManager {
 
@@ -11,4 +12,8 @@ public interface PluginManager {
     Optional<LoadedPlugin> getPlugin(String id);
 
     void reloadPlugin(LoadedPlugin loaded);
+
+    boolean isPluginLoaded(String id);
+
+    Set<LoadedPlugin> getPlugins();
 }
