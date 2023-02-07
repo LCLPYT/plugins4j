@@ -3,6 +3,7 @@ package work.lclpnet.plugin;
 import org.apache.logging.log4j.Logger;
 import work.lclpnet.plugin.load.LoadablePlugin;
 import work.lclpnet.plugin.load.PluginAlreadyLoadedException;
+import work.lclpnet.plugin.load.PluginLoadException;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -45,6 +46,12 @@ public class DistinctPluginContainer implements PluginContainer {
         if (isPluginLoaded(id)) {
             lock.unlock();
             throw new PluginAlreadyLoadedException("Plugin with id '%s' is already loaded".formatted(id));
+        }
+
+        for (var dependency : loadable.getManifest().dependsOn()) {
+            if (!isPluginLoaded(dependency)) {
+                throw new PluginLoadException("Unknown dependency '%s'".formatted(dependency));
+            }
         }
 
         final var loaded = loadable.load();
