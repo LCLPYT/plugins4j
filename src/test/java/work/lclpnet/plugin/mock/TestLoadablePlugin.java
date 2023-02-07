@@ -31,7 +31,7 @@ public class TestLoadablePlugin implements LoadablePlugin {
         // simulate plugin loading
         TestPlugin plugin = new TestPlugin(id, loadedIds);
 
-        return new LoadedPlugin(plugin, id, manifest);
+        return new LoadedPlugin(plugin, id, manifest, null);
     }
 
     public String getId() {
