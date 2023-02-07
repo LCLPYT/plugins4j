@@ -18,7 +18,7 @@ public class TestLoadablePlugin implements LoadablePlugin {
     public TestLoadablePlugin(List<String> loadedIds, String id, String... dependencies) {
         this.loadedIds = loadedIds;
         this.id = id;
-        this.manifest = new PluginManifest(id, null, Arrays.stream(dependencies).collect(Collectors.toSet()));
+        this.manifest = TestManifestLoader.manifest("id", Arrays.stream(dependencies).collect(Collectors.toSet()));
     }
 
     @Override

@@ -52,7 +52,7 @@ public class Cli {
             case "load" -> loadPlugin(args);
             case "unload" -> unloadPlugin(args);
             case "reload" -> reloadPlugin(args);
-            default -> System.err.printf("Unknown command '%s' %n", args[0]);
+            default -> System.err.printf("Unknown command '%s'%n", args[0]);
         }
     }
 
