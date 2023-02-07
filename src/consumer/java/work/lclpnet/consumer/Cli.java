@@ -87,7 +87,7 @@ public class Cli {
         final var plugin = pluginManager.getPlugin(args[1]);
 
         if (plugin.isEmpty()) {
-            System.err.println("File does not exist");
+            System.err.println("Plugin not loaded");
             return;
         }
 

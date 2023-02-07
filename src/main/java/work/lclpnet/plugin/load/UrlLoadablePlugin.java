@@ -27,12 +27,19 @@ public class UrlLoadablePlugin implements LoadablePlugin {
     @Override
     public LoadedPlugin load() throws PluginLoadException {
         Plugin plugin;
-        try (PluginClassLoader classLoader = new PluginClassLoader(url, manifest)) {
+
+        var classLoader = new PluginClassLoader(url, manifest);
+
+        try {
             plugin = classLoader.loadPlugin();
-        } catch (ReflectiveOperationException | IOException e) {
+        } catch (ReflectiveOperationException e) {
+            try {
+                classLoader.close();
+            } catch (IOException ignored) {}
+
             throw new PluginLoadException("Failed to load plugin '%s'".formatted(url), e);
         }
 
-        return new LoadedPlugin(plugin, source, manifest);
+        return new LoadedPlugin(plugin, source, manifest, classLoader);
     }
 }

@@ -4,6 +4,8 @@ import org.apache.logging.log4j.Logger;
 import work.lclpnet.plugin.load.LoadablePlugin;
 import work.lclpnet.plugin.load.PluginAlreadyLoadedException;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -98,6 +100,14 @@ public class DistinctPluginContainer implements PluginContainer {
         }
 
         loadedPlugins.remove(loadedPlugin.getManifest().id());
+
+        var classLoader = loadedPlugin.getClassLoader();
+
+        if (classLoader instanceof Closeable c) {
+            try {
+                c.close();
+            } catch (IOException ignored) {}
+        }
 
         loadedPlugin.remove();  // remove reference to the foreign plugin instance to enable gc
     }

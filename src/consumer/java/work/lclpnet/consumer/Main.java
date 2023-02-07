@@ -15,7 +15,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
         final var logger = LogManager.getLogger(Main.class);
 
-        final var pluginDiscoveryService = new DirectoryPluginDiscoveryService(Path.of("plugins"), new JsonManifestLoader(), logger);
+        final var pluginDiscoveryService = new DirectoryPluginDiscoveryService(
+                Path.of("plugins"), new JsonManifestLoader(), logger
+        );
+
         final var pluginContainer = new DistinctPluginContainer(logger);
 
         final var pluginBootstrap = new OrderedPluginBootstrap(pluginDiscoveryService, pluginContainer);
@@ -23,6 +26,10 @@ public class Main {
 
         final var pluginManager = new SimplePluginManager(pluginDiscoveryService, pluginContainer);
 
-        new Cli(pluginManager).start();
+        try {
+            new Cli(pluginManager).start();
+        } finally {
+            pluginManager.shutdown();
+        }
     }
 }

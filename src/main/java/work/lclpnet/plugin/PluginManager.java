@@ -16,4 +16,6 @@ public interface PluginManager {
     boolean isPluginLoaded(String id);
 
     Set<LoadedPlugin> getPlugins();
+
+    void shutdown();
 }

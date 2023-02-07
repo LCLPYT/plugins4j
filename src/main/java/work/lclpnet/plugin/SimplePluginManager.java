@@ -13,6 +13,7 @@ public class SimplePluginManager implements PluginManager {
 
     private final PluginDiscoveryService discoveryService;
     private final PluginContainer pluginContainer;
+    private volatile boolean acceptNewPlugins = true;
 
     public SimplePluginManager(PluginDiscoveryService discoveryService, PluginContainer pluginContainer) {
         this.discoveryService = discoveryService;
@@ -25,6 +26,8 @@ public class SimplePluginManager implements PluginManager {
      */
     @Override
     public void loadPlugin(Object src) {
+        if (!acceptNewPlugins) return;
+
         LoadablePlugin loadable;
 
         if (src instanceof LoadablePlugin) {
@@ -70,5 +73,11 @@ public class SimplePluginManager implements PluginManager {
     @Override
     public Set<LoadedPlugin> getPlugins() {
         return pluginContainer.getPlugins();
+    }
+
+    @Override
+    public void shutdown() {
+        acceptNewPlugins = false;
+        pluginContainer.getPlugins().forEach(pluginContainer::unloadPlugin);
     }
 }
