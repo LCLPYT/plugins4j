@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,9 +37,9 @@ public class JsonManifestLoader implements PluginManifestLoader {
         final String entry = obj.getString("entry");
 
         optional(obj, "dependsOn", array(STRING));
-        final var dependsOn = stream(obj.getJSONArray("dependsOn"))
+        final var dependsOn = obj.has("dependsOn") ? stream(obj.getJSONArray("dependsOn"))
                 .map(x -> (String) x)
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.toUnmodifiableSet()) : Collections.<String>emptySet();
 
         return new PluginManifest(id, entry, dependsOn);
     }
