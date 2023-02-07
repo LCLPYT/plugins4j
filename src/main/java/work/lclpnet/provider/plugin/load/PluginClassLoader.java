@@ -40,5 +40,4 @@ public class PluginClassLoader extends URLClassLoader {
 
         return (Plugin) constructor.newInstance();
     }
-
 }

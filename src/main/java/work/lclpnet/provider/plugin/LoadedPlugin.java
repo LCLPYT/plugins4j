@@ -29,4 +29,8 @@ public class LoadedPlugin {
     public PluginManifest getManifest() {
         return manifest;
     }
+
+    public String getId() {
+        return getManifest().id();
+    }
 }

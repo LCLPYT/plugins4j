@@ -29,7 +29,7 @@ public class SimplePluginManager implements PluginManager {
         if (src instanceof LoadablePlugin) {
             loadable = (LoadablePlugin) src;
         } else {
-            Optional<LoadablePlugin> plugin;
+            Optional<? extends LoadablePlugin> plugin;
             try {
                 plugin = discoveryService.discoverFrom(src);
             } catch (IOException e) {

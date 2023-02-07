@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public interface PluginDiscoveryService {
 
-    Stream<LoadablePlugin> discover() throws IOException;
+    Stream<? extends LoadablePlugin> discover() throws IOException;
 
     /**
      * Tries to discover a plugin by an identifier object.
@@ -19,5 +19,5 @@ public interface PluginDiscoveryService {
      * unsupported.
      * @throws IOException If something went wrong.
      */
-    Optional<LoadablePlugin> discoverFrom(Object src) throws IOException;
+    Optional<? extends LoadablePlugin> discoverFrom(Object src) throws IOException;
 }
