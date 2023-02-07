@@ -16,6 +16,10 @@ public class TestManifestLoader implements PluginManifestLoader {
     }
 
     public static PluginManifest manifest(String id, Set<String> dependencies) {
-        return new PluginManifest(id, null, dependencies);
+        return manifest(id, null, dependencies);
+    }
+
+    public static PluginManifest manifest(String id, String entry, Set<String> dependencies) {
+        return new PluginManifest(id, entry, dependencies);
     }
 }
