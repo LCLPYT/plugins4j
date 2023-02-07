@@ -119,8 +119,15 @@ abstract class DeployPluginsTask extends DefaultTask {
 
         plugins.forEach(plugin -> {
             def testPlugin = '%s-%s.jar'.formatted(plugin, version)
-            Files.copy(libsDir.resolve(testPlugin), pluginsDir.resolve(testPlugin), StandardCopyOption.REPLACE_EXISTING)
+            copy(libsDir.resolve(testPlugin), pluginsDir.resolve(testPlugin))
         })
+    }
+
+    static def copy(java.nio.file.Path a, java.nio.file.Path b) {
+        // transfer file contents to enable plugin hot-swapping using reloading
+        try (def input = new FileInputStream(a.toFile()); def output = new FileOutputStream(b.toFile())) {
+            input.transferTo output
+        }
     }
 }
 
