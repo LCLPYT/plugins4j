@@ -1,0 +1,5 @@
+{
+  "id": "testPlugin",
+  "entry": "work.lclpnet.testPlugin.TestPlugin",
+  "dependsOn": []
+}

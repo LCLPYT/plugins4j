@@ -1,5 +1,0 @@
-{
-  "id": "testPlugin",
-  "entry": "work.lclpnet.consumer.Consumer",
-  "dependsOn": []
-}
