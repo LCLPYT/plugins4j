@@ -20,6 +20,6 @@ public class TestManifestLoader implements PluginManifestLoader {
     }
 
     public static PluginManifest manifest(String id, String entry, Set<String> dependencies) {
-        return new PluginManifest(id, entry, dependencies);
+        return new PluginManifest(PluginManifestLoader.VERSION, id, entry, dependencies);
     }
 }

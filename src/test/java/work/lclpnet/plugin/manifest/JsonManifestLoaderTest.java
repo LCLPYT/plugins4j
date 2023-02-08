@@ -21,6 +21,7 @@ class JsonManifestLoaderTest {
 
     private static final String TEST_MANIFEST = """
             {
+              "version": "1",
               "id": "testPlugin",
               "entry": "work.lclpnet.testPlugin.TestPlugin",
               "dependsOn": []
@@ -29,6 +30,7 @@ class JsonManifestLoaderTest {
 
     /** sets all the required properties on a JsonBuilder instance */
     private static final Set<UnaryOperator<JsonBuilder>> REQUIRED = Set.of(
+            b -> b.withVersion(PluginManifestLoader.VERSION),
             b -> b.withId("testPlugin"),
             b -> b.withEntry("work.lclpnet.testPlugin.TestPlugin")
     );
@@ -166,6 +168,16 @@ class JsonManifestLoaderTest {
     }
 
     @Test
+    void load_invalidVersion_throws() throws IOException {
+        assertInvalidPropertyTypes(
+                // setter
+                JsonBuilder::withVersion,
+                // invalid json types that need to be checked
+                CHECK_NUMBER, CHECK_BOOLEAN, CHECK_NULL, CHECK_OBJECT, CHECK_ANY_ARRAY
+        );
+    }
+
+    @Test
     void load_invalidId_throws() throws IOException {
         assertInvalidPropertyTypes(
                 // setter
@@ -195,6 +207,11 @@ class JsonManifestLoaderTest {
 
     private static class JsonBuilder {
         private final JSONObject obj = new JSONObject();
+
+        public JsonBuilder withVersion(Object version) {
+            obj.put("version", version);
+            return this;
+        }
 
         public JsonBuilder withId(Object id) {
             obj.put("id", id);

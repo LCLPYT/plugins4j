@@ -30,6 +30,10 @@ public class JsonManifestLoader implements PluginManifestLoader {
             throw new ManifestLoadException("Invalid manifest json", e);
         }
 
+        require(obj, "version", STRING);
+        final String version = obj.getString("version");
+        if (!VERSION.equalsIgnoreCase(version)) throw new ManifestLoadException("Invalid manifest version");
+
         require(obj, "id", STRING);
         final String id = obj.getString("id");
 
@@ -41,7 +45,7 @@ public class JsonManifestLoader implements PluginManifestLoader {
                 .map(x -> (String) x)
                 .collect(Collectors.toUnmodifiableSet()) : Collections.<String>emptySet();
 
-        return new PluginManifest(id, entry, dependsOn);
+        return new PluginManifest(version, id, entry, dependsOn);
     }
 
     private static void require(JSONObject obj, String key, Predicate<Object> predicate) throws ManifestLoadException {
