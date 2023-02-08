@@ -7,13 +7,13 @@ plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'maven-publish'
-//    id 'gradle-build-utils'
+    id 'gradle-build-utils'
 }
 
-// Properties props = loadProperties.call('publish.properties')
+ Properties props = loadProperties.call('publish.properties')
 
 group project.maven_group
-version '0.2.0' // gitVersion.call()
+version gitVersion.call()
 
 repositories {
     mavenCentral()
@@ -190,13 +190,13 @@ publishing {
                     password env.get("DEPLOY_PASSWORD")
                 }
                 url env.get("DEPLOY_URL")
-            } /* else if (Arrays.stream("mavenHost", "mavenUser", "mavenPassword").allMatch(props.&containsKey)) {
+            } else if (Arrays.stream("mavenHost", "mavenUser", "mavenPassword").allMatch(props.&containsKey)) {
                 credentials {
                     username props.getProperty('mavenUser')
                     password props.getProperty('mavenPassword')
                 }
                 url props.getProperty('mavenHost')
-            } */ else {
+            } else {
                 url "file:///${project.projectDir}/repo"
             }
         }
