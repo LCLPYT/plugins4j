@@ -6,10 +6,14 @@ import java.nio.file.StandardCopyOption
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'maven-publish'
+//    id 'gradle-build-utils'
 }
 
-group 'work.lclpnet.plugins4j'
-version '1.0.0'
+// Properties props = loadProperties.call('publish.properties')
+
+group project.maven_group
+version '0.1.0' // gitVersion.call()
 
 repositories {
     mavenCentral()
@@ -74,6 +78,8 @@ task testPluginJar(type: Jar) {
     archiveVersion.set(project.version.toString())
     archiveBaseName.set('testPlugin')
 }
+
+shadowJar.enabled = false  // default shadowJar task should be disabled
 
 artifacts {
     archives testPluginJar, consumerJar
@@ -140,4 +146,40 @@ deploy.configure {
 
 deployPlugins.configure {
     dependsOn build
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = project.archives_base_name
+
+            from components.java
+
+            pom {
+                name = 'plugins4j'
+                description = 'Lightweight plugin loading and unloading at runtime.'
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            def env = System.getenv()
+            if (Arrays.stream("DEPLOY_URL", "DEPLOY_USER", "DEPLOY_PASSWORD").allMatch(env.&containsKey)) {
+                credentials {
+                    username env.get("DEPLOY_USER")
+                    password env.get("DEPLOY_PASSWORD")
+                }
+                url env.get("DEPLOY_URL")
+            } /* else if (Arrays.stream("mavenHost", "mavenUser", "mavenPassword").allMatch(props.&containsKey)) {
+                credentials {
+                    username props.getProperty('mavenUser')
+                    password props.getProperty('mavenPassword')
+                }
+                url props.getProperty('mavenHost')
+            } */ else {
+                url "file:///${project.projectDir}/repo"
+            }
+        }
+    }
 }

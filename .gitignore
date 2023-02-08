@@ -3,3 +3,5 @@
 build
 run
 out
+repo
+publish.properties
