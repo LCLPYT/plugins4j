@@ -1,6 +1,7 @@
-package work.lclpnet.consumer;
+package work.lclpnet.example;
 
 import work.lclpnet.plugin.PluginManager;
+import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginAlreadyLoadedException;
 
 import java.nio.file.Files;
@@ -45,15 +46,25 @@ public class Cli {
         String[] args = input.split("\\s");
 
         switch (args[0]) {
-            case "quit", "exit" -> {
+            case "quit", "exit", "q" -> {
                 System.out.println("Exiting...");
                 running = false;
             }
             case "load" -> loadPlugin(args);
             case "unload" -> unloadPlugin(args);
             case "reload" -> reloadPlugin(args);
+            case "plugins", "list" -> listPlugins();
+            case "help", "h", "?" -> help();
             default -> System.err.printf("Unknown command '%s'%n", args[0]);
         }
+    }
+
+    private void listPlugins() {
+        var plugins = pluginManager.getPlugins().stream()
+                .map(LoadedPlugin::getId)
+                .toList();
+
+        System.out.printf("Loaded plugins: %s%n", plugins);
     }
 
     private void loadPlugin(String[] args) {
@@ -92,5 +103,18 @@ public class Cli {
         }
 
         pluginManager.reloadPlugin(plugin.get());
+    }
+
+    private void help() {
+        System.out.println("""
+                Example plugins4j program
+                =========================
+                Commands:
+                list   - Lists loaded plugins
+                load   - Load a plugin from a file
+                unload - Unload a plugin by id; all dependants will be unloaded too
+                reload - Reload a plugin by id
+                exit   - Exit the program; will unload all plugins too
+                """);
     }
 }

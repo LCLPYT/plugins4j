@@ -1,4 +1,4 @@
-package work.lclpnet.consumer;
+package work.lclpnet.example;
 
 import org.apache.logging.log4j.LogManager;
 import work.lclpnet.plugin.DistinctPluginContainer;

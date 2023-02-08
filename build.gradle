@@ -20,8 +20,8 @@ repositories {
 }
 
 configurations {
-    consumerImplementation.extendsFrom(implementation)
-    consumerRuntimeOnly.extendsFrom(runtimeOnly)
+    exampleImplementation.extendsFrom(implementation)
+    exampleRuntimeOnly.extendsFrom(runtimeOnly)
 
     testPluginImplementation.extendsFrom(implementation)
     testPluginRuntimeOnly.extendsFrom(runtimeOnly)
@@ -37,14 +37,14 @@ dependencies {
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
-    consumerImplementation 'org.apache.logging.log4j:log4j-core:2.19.0'
+    exampleImplementation 'org.apache.logging.log4j:log4j-core:2.19.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 sourceSets {
-    consumer {
+    example {
         java {
             compileClasspath += main.output
             runtimeClasspath += main.output
@@ -68,16 +68,16 @@ test {
     useJUnitPlatform()
 }
 
-task consumerJar(type: ShadowJar) {
-    from sourceSets.consumer.output, sourceSets.main.output
+task exampleJar(type: ShadowJar) {
+    from sourceSets.example.output, sourceSets.main.output
     archiveVersion.set(project.version.toString())
-    archiveBaseName.set('consumer')
+    archiveBaseName.set('example')
 
     manifest {
-        attributes('Main-Class': 'work.lclpnet.consumer.Main')
+        attributes('Main-Class': 'work.lclpnet.example.Main')
     }
 
-    configurations = [project.configurations.consumerCompileClasspath]
+    configurations = [project.configurations.exampleCompileClasspath]
     dependencies {
         include(dependency('org.apache.logging.log4j:log4j-core:.*'))
         include(dependency('org.apache.logging.log4j:log4j-api:.*'))
@@ -101,7 +101,7 @@ task providerPluginJar(type: Jar) {
 shadowJar.enabled = false  // default shadowJar task should be disabled
 
 artifacts {
-    archives testPluginJar, consumerJar, providerPluginJar
+    archives testPluginJar, exampleJar, providerPluginJar
 }
 
 abstract class DeployTask extends DefaultTask {
@@ -111,7 +111,7 @@ abstract class DeployTask extends DefaultTask {
         final def libsDir = proj.getBuildDir().toPath().resolve('libs')
         final def version = proj.getVersion()
 
-        def provider = 'consumer-%s.jar'.formatted(version)
+        def provider = 'example-%s.jar'.formatted(version)
 
         final def runDir = proj.getProjectDir().toPath().resolve('run')
         if (!Files.exists(runDir)) Files.createDirectories(runDir)
