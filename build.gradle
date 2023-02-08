@@ -70,8 +70,8 @@ test {
 
 task exampleJar(type: ShadowJar) {
     from sourceSets.example.output, sourceSets.main.output
-    archiveVersion.set(project.version.toString())
     archiveBaseName.set('example')
+    archiveFileName.set("example.jar")
 
     manifest {
         attributes('Main-Class': 'work.lclpnet.example.Main')
@@ -109,9 +109,8 @@ abstract class DeployTask extends DefaultTask {
     def deploy() {
         final def proj = this.getProject()
         final def libsDir = proj.getBuildDir().toPath().resolve('libs')
-        final def version = proj.getVersion()
 
-        def provider = 'example-%s.jar'.formatted(version)
+        def provider = 'example.jar';
 
         final def runDir = proj.getProjectDir().toPath().resolve('run')
         if (!Files.exists(runDir)) Files.createDirectories(runDir)
