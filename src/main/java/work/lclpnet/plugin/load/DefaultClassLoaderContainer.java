@@ -63,7 +63,11 @@ public class DefaultClassLoaderContainer implements ClassLoaderContainer, ClassR
 
                 // try to load class from other class loaders
                 try {
-                    res = loader.loadClass(name);
+                    if (loader instanceof PluginClassLoader pcl) {
+                        res = pcl.loadClassDelegated(name);  // use specific method to prevent recursive calls
+                    } else {
+                        res = loader.loadClass(name);
+                    }
                 } catch (ClassNotFoundException ignored) {}
 
                 if (res != null) return Optional.of(res);

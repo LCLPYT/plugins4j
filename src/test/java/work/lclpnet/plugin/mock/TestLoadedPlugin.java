@@ -35,4 +35,9 @@ public class TestLoadedPlugin implements LoadedPlugin {
     public PluginManifest getManifest() {
         return manifest;
     }
+
+    @Override
+    public String toString() {
+        return getId();
+    }
 }

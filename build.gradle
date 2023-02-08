@@ -33,6 +33,9 @@ configurations {
 dependencies {
     implementation 'org.apache.logging.log4j:log4j-api:2.19.0'
     implementation 'org.json:json:20220924'
+    implementation 'org.apache.commons:commons-collections4:4.4'
+
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
     consumerImplementation 'org.apache.logging.log4j:log4j-core:2.19.0'
 
@@ -78,6 +81,7 @@ task consumerJar(type: ShadowJar) {
     dependencies {
         include(dependency('org.apache.logging.log4j:log4j-core:.*'))
         include(dependency('org.apache.logging.log4j:log4j-api:.*'))
+        include(dependency('org.apache.commons:commons-collections4:.*'))
         include(dependency('org.json:json:.*'))
     }
 }

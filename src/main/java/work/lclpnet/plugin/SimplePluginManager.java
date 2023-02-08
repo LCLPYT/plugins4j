@@ -62,8 +62,16 @@ public class SimplePluginManager implements PluginManager {
     }
 
     public void reloadPlugin(LoadedPlugin loaded) {
+        var dependants = pluginContainer.getOrderedDependants(loaded);
+
         unloadPlugin(loaded);
+
         loadPlugin(loaded.getSource());
+
+        // dependants have been unloaded automatically, load them again in the correct order
+        for (var dependant : dependants) {
+            loadPlugin(dependant.getSource());
+        }
     }
 
     @Override

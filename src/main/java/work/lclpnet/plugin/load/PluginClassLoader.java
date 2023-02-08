@@ -1,5 +1,7 @@
 package work.lclpnet.plugin.load;
 
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
 import work.lclpnet.plugin.Plugin;
 import work.lclpnet.plugin.manifest.PluginManifest;
 
@@ -12,6 +14,8 @@ public class PluginClassLoader extends URLClassLoader {
 
     private final PluginManifest manifest;
     private final ClassResolver classResolver;
+    private final Bag<String> delegatedLoading = new HashBag<>();
+
 
     /**
      * Creates a new JarClassLoader for the specified url.
@@ -48,6 +52,11 @@ public class PluginClassLoader extends URLClassLoader {
             if (res != null) return res;
         } catch (ClassNotFoundException ignored) {}
 
+        // check if class load was delegated by another PluginClassLoader
+        if (this.delegatedLoading.contains(name)) {
+            throw new ClassNotFoundException(name);
+        }
+
         // class is not in our plugin jar, ask the other class loaders
         var otherPluginClass = this.classResolver.resolve(name, this);
 
@@ -56,5 +65,15 @@ public class PluginClassLoader extends URLClassLoader {
         }
 
         throw new ClassNotFoundException(name);
+    }
+
+    Class<?> loadClassDelegated(String name) throws ClassNotFoundException {
+        this.delegatedLoading.add(name);
+
+        try {
+            return this.loadClass(name);
+        } finally {
+            this.delegatedLoading.remove(name);
+        }
     }
 }

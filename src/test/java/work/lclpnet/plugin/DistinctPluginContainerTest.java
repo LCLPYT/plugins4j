@@ -3,6 +3,7 @@ package work.lclpnet.plugin;
 import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.Test;
 import work.lclpnet.plugin.load.LoadedPlugin;
+import work.lclpnet.plugin.load.PluginLoadException;
 import work.lclpnet.plugin.mock.TestLoadablePlugin;
 
 import java.util.ArrayList;
@@ -154,5 +155,148 @@ class DistinctPluginContainerTest {
                 Set.of("pluginB"),
                 container.getPlugins().stream().map(LoadedPlugin::getId).collect(Collectors.toSet())
         );
+    }
+
+    @Test
+    void getOrderedDependants_hasDependants_correctOrder() {
+        final var loadedIds = new ArrayList<String>();
+
+        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
+        final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
+
+        final var logger = LogManager.getLogger();
+        final var container = new DistinctPluginContainer(logger);
+
+        assertThrows(PluginLoadException.class, () -> container.loadPlugin(pluginB));
+        container.loadPlugin(pluginA);
+        container.loadPlugin(pluginB);
+
+        var loadedPluginA = container.getPlugin(pluginA.getId()).orElseThrow();
+        var loadedPluginB = container.getPlugin(pluginB.getId()).orElseThrow();
+
+        var dependants = container.getOrderedDependants(loadedPluginA);
+        assertEquals(1, dependants.size());
+        assertEquals(loadedPluginB, dependants.get(0));
+
+        dependants = container.getOrderedDependants(loadedPluginB);
+        assertTrue(dependants.isEmpty());
+    }
+
+    @Test
+    void getOrderedDependants_unload_correct() {
+        final var loadedIds = new ArrayList<String>();
+
+        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
+        final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
+
+        final var logger = LogManager.getLogger();
+        final var container = new DistinctPluginContainer(logger);
+
+        assertThrows(PluginLoadException.class, () -> container.loadPlugin(pluginB));
+        container.loadPlugin(pluginA);
+        container.loadPlugin(pluginB);
+
+        var loadedPluginA = container.getPlugin(pluginA.getId()).orElseThrow();
+        var loadedPluginB = container.getPlugin(pluginB.getId()).orElseThrow();
+
+        var dependants = container.getOrderedDependants(loadedPluginA);
+        assertEquals(1, dependants.size());
+        assertEquals(loadedPluginB, dependants.get(0));
+
+        container.unloadPlugin(loadedPluginB);
+
+        dependants = container.getOrderedDependants(loadedPluginA);
+        assertTrue(dependants.isEmpty());
+    }
+
+    @Test
+    void getOrderedDependants_complex_correctOrder() {
+        final var loadedIds = new ArrayList<String>();
+
+        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
+        final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
+        final var pluginC = new TestLoadablePlugin(loadedIds, "pluginC", "pluginB");
+
+        final var logger = LogManager.getLogger();
+        final var container = new DistinctPluginContainer(logger);
+
+        container.loadPlugin(pluginA);
+        container.loadPlugin(pluginB);
+        container.loadPlugin(pluginC);
+
+        var loadedPluginA = container.getPlugin(pluginA.getId()).orElseThrow();
+        var loadedPluginB = container.getPlugin(pluginB.getId()).orElseThrow();
+        var loadedPluginC = container.getPlugin(pluginC.getId()).orElseThrow();
+
+        var dependants = container.getOrderedDependants(loadedPluginA);
+        assertEquals(List.of(loadedPluginB, loadedPluginC), dependants);
+
+        dependants = container.getOrderedDependants(loadedPluginB);
+        assertEquals(List.of(loadedPluginC), dependants);
+    }
+
+    @Test
+    void getOrderedDependants_complexUnload_correctOrder() {
+        final var loadedIds = new ArrayList<String>();
+
+        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
+        final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
+        final var pluginC = new TestLoadablePlugin(loadedIds, "pluginC", "pluginB");
+
+        final var logger = LogManager.getLogger();
+        final var container = new DistinctPluginContainer(logger);
+
+        container.loadPlugin(pluginA);
+        container.loadPlugin(pluginB);
+        container.loadPlugin(pluginC);
+
+        var loadedPluginA = container.getPlugin(pluginA.getId()).orElseThrow();
+        var loadedPluginB = container.getPlugin(pluginB.getId()).orElseThrow();
+        var loadedPluginC = container.getPlugin(pluginC.getId()).orElseThrow();
+
+        var dependants = container.getOrderedDependants(loadedPluginA);
+        assertEquals(List.of(loadedPluginB, loadedPluginC), dependants);
+
+        dependants = container.getOrderedDependants(loadedPluginB);
+        assertEquals(List.of(loadedPluginC), dependants);
+
+        container.unloadPlugin(loadedPluginC);
+
+        dependants = container.getOrderedDependants(loadedPluginA);
+        assertEquals(List.of(loadedPluginB), dependants);
+
+        dependants = container.getOrderedDependants(loadedPluginB);
+        assertEquals(List.of(), dependants);
+
+        container.loadPlugin(pluginC);
+        container.unloadPlugin(loadedPluginB);  // b and c should be unloaded
+
+        dependants = container.getOrderedDependants(loadedPluginA);
+        assertEquals(List.of(), dependants);
+    }
+
+    @Test
+    void getOrderedDependants_unloadDependants_happens() {
+        final var loadedIds = new ArrayList<String>();
+
+        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
+        final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
+
+        final var logger = LogManager.getLogger();
+        final var container = new DistinctPluginContainer(logger);
+
+        container.loadPlugin(pluginA);
+        container.loadPlugin(pluginB);
+
+        assertEquals(
+                Set.of(pluginA.getId(), pluginB.getId()),
+                container.getPlugins().stream().map(LoadedPlugin::getId).collect(Collectors.toSet())
+        );
+
+        var loadedPluginA = container.getPlugin(pluginA.getId()).orElseThrow();
+
+        container.unloadPlugin(loadedPluginA);
+
+        assertEquals(Set.of(), container.getPlugins());
     }
 }

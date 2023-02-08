@@ -135,24 +135,4 @@ class OrderedPluginBootstrapTest {
         var boostrap = new OrderedPluginBootstrap(discovery, container);
         assertThrows(PluginLoadException.class, boostrap::loadPlugins);
     }
-
-    @Test
-    void Node$addChild_cycle_false() {
-        var a = new OrderedPluginBootstrap.Node<>("a");
-        var b = new OrderedPluginBootstrap.Node<>("b");
-
-        assertTrue(a.addChild(b));
-        assertFalse(b.addChild(a));
-    }
-
-    @Test
-    void Node$addChild_cycleBig_false() {
-        var a = new OrderedPluginBootstrap.Node<>("a");
-        var b = new OrderedPluginBootstrap.Node<>("b");
-        var c = new OrderedPluginBootstrap.Node<>("c");
-
-        assertTrue(a.addChild(b));
-        assertTrue(b.addChild(c));
-        assertFalse(c.addChild(a));
-    }
 }

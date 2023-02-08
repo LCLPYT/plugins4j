@@ -2,13 +2,15 @@ package work.lclpnet.plugin.bootstrap;
 
 import work.lclpnet.plugin.PluginContainer;
 import work.lclpnet.plugin.discover.PluginDiscoveryService;
+import work.lclpnet.plugin.graph.DAG;
 import work.lclpnet.plugin.load.LoadablePlugin;
 import work.lclpnet.plugin.load.PluginLoadException;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A plugin bootstrap for a single plugin discovery service
@@ -65,11 +67,11 @@ public class OrderedPluginBootstrap implements PluginBootstrap {
             pluginsById.put(plugin.getManifest().id(), plugin);
         }
 
-        final var dependencyGraph = new DependencyGraph();
+        final var dependencyGraph = new DAG<LoadablePlugin>();
 
         // construct an acyclic dependency graph
         for (var plugin : plugins) {
-            var node = dependencyGraph.getOrCreate(plugin);
+            var node = dependencyGraph.getOrCreateNode(plugin.getManifest().id(), plugin);
             var manifest = plugin.getManifest();
 
             for (var dependencyId : manifest.dependsOn()) {
@@ -79,7 +81,7 @@ public class OrderedPluginBootstrap implements PluginBootstrap {
                     throw new PluginLoadException("Unknown dependency '%s'".formatted(dependencyId));
                 }
 
-                var dependencyNode = dependencyGraph.getOrCreate(dependency);
+                var dependencyNode = dependencyGraph.getOrCreateNode(dependency.getManifest().id(), dependency);
 
                 if (!dependencyNode.addChild(node)) {
                     var pluginId = manifest.id();
@@ -92,91 +94,7 @@ public class OrderedPluginBootstrap implements PluginBootstrap {
 
         return dependencyGraph.getTopologicalOrder()
                 .stream()
-                .map(Node::getObj)
+                .map(DAG.Node::getObj)
                 .toList();
-    }
-
-    static final class DependencyGraph {
-        private final Map<String, Node<LoadablePlugin>> nodes = new ConcurrentHashMap<>();
-
-        public synchronized Node<LoadablePlugin> getOrCreate(LoadablePlugin plugin) {
-            return nodes.computeIfAbsent(plugin.getManifest().id(), id -> new Node<>(plugin));
-        }
-
-        public List<Node<LoadablePlugin>> getTopologicalOrder() {
-            // Kahn's algorithm
-            // https://en.wikipedia.org/w/index.php?title=Topological_sorting&oldid=1123299686#Kahn's_algorithm
-            final List<Node<LoadablePlugin>> L = new ArrayList<>();
-            final Set<Node<LoadablePlugin>> S = nodes.values()
-                    .stream()
-                    .filter(Node::isRoot)
-                    .collect(Collectors.toSet());
-
-            while (!S.isEmpty()) {
-                var n = S.iterator().next();
-                S.remove(n);
-                L.add(n);
-
-                for (var m : n.children) {
-                    m.parents.remove(n);
-
-                    if (m.isRoot()) {
-                        S.add(m);
-                    }
-                }
-            }
-
-            // validate
-            if (!L.stream().allMatch(Node::isRoot)) {
-                throw new PluginLoadException("Cyclic dependency graph");
-            }
-
-            return L;
-        }
-    }
-
-    static final class Node<T> {
-        private final Set<Node<T>> parents = new HashSet<>();
-        private final Set<Node<T>> children = new HashSet<>();
-        private final T obj;
-
-        Node(T obj) {
-            this.obj = obj;
-        }
-
-        public T getObj() {
-            return obj;
-        }
-
-        public boolean isRoot() {
-            return parents.isEmpty();
-        }
-
-        public boolean addChild(Node<T> node) {
-            if (node.hasChildDeep(this)) return false;
-
-            children.add(node);
-            node.parents.add(this);
-
-            return true;
-        }
-
-        public boolean hasChildDeep(Node<T> node) {
-            for (var child : children) {
-                if (node.equals(child) || child.hasChildDeep(node)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        @Override
-        public String toString() {
-            return "%s: (%s|%s)".formatted(
-                    obj,
-                    this.children.stream().map(p -> p.obj.toString()).collect(Collectors.joining(",")),
-                    this.parents.stream().map(p -> p.obj.toString()).collect(Collectors.joining(",")));
-        }
     }
 }

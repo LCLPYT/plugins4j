@@ -3,6 +3,7 @@ package work.lclpnet.plugin;
 import work.lclpnet.plugin.load.LoadablePlugin;
 import work.lclpnet.plugin.load.LoadedPlugin;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,4 +18,6 @@ public interface PluginContainer {
     void loadPlugin(LoadablePlugin plugin);
 
     void unloadPlugin(LoadedPlugin plugin);
+
+    List<LoadedPlugin> getOrderedDependants(LoadedPlugin plugin);
 }

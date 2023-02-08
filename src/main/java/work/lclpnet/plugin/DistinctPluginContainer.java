@@ -1,6 +1,7 @@
 package work.lclpnet.plugin;
 
 import org.apache.logging.log4j.Logger;
+import work.lclpnet.plugin.graph.DAG;
 import work.lclpnet.plugin.load.LoadablePlugin;
 import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginAlreadyLoadedException;
@@ -8,12 +9,14 @@ import work.lclpnet.plugin.load.PluginLoadException;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public class DistinctPluginContainer implements PluginContainer {
 
     private final Map<String, LoadedPlugin> loadedPlugins = new HashMap<>();
     private final Logger logger;
     private final ReentrantLock lock = new ReentrantLock();
+    private final DAG<LoadedPlugin> dependencyGraph = new DAG<>();
 
     public DistinctPluginContainer(Logger logger) {
         this.logger = logger;
@@ -35,7 +38,21 @@ public class DistinctPluginContainer implements PluginContainer {
     }
 
     @Override
-    public synchronized void loadPlugin(LoadablePlugin loadable) {
+    public List<LoadedPlugin> getOrderedDependants(LoadedPlugin plugin) {
+        var node = dependencyGraph.getNode(plugin.getId()).orElseThrow();
+        var dependencyOrder = dependencyGraph.getTopologicalOrder(Set.of(node));
+
+        if (!dependencyOrder.isEmpty()) {
+            dependencyOrder.remove(0);  // remove self
+        }
+
+        return dependencyOrder.stream()
+                .map(DAG.Node::getObj)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void loadPlugin(LoadablePlugin loadable) {
         lock.lock();
 
         final var id = loadable.getManifest().id();
@@ -57,6 +74,8 @@ public class DistinctPluginContainer implements PluginContainer {
 
         loadedPlugins.put(id, loaded);
 
+        addToDependencyGraph(loadable, loaded);
+
         Plugin plugin = loaded.getPlugin();
 
         boolean loadError = false;
@@ -77,11 +96,42 @@ public class DistinctPluginContainer implements PluginContainer {
         }
     }
 
+    private void addToDependencyGraph(LoadablePlugin loadable, LoadedPlugin loaded) {
+        var node = dependencyGraph.getOrCreateNode(loaded.getId(), loaded);
+
+        var loadedDependencies = loadable.getManifest().dependsOn().stream()
+                .map(this::getPlugin)
+                .map(Optional::orElseThrow)
+                .collect(Collectors.toSet());
+
+        for (var dependency : loadedDependencies) {
+            var depNode = dependencyGraph.getOrCreateNode(dependency.getId(), dependency);
+            depNode.addChild(node);
+        }
+    }
+
     @Override
-    public synchronized void unloadPlugin(LoadedPlugin loadedPlugin) {
+    public void unloadPlugin(LoadedPlugin loadedPlugin) {
         lock.lock();
 
-        final var id = loadedPlugin.getManifest().id();
+        if (!isPluginLoaded(loadedPlugin.getId())) return;
+
+        final var dependants = getOrderedDependants(loadedPlugin);
+        Collections.reverse(dependants);
+
+        for (var dependency : dependants) {
+            unloadPluginInternal(dependency);
+        }
+
+        unloadPluginInternal(loadedPlugin);
+
+        lock.unlock();
+    }
+
+    private void unloadPluginInternal(LoadedPlugin loadedPlugin) {
+        final var id = loadedPlugin.getId();
+
+        if (!isPluginLoaded(id)) return;
 
         logger.info("Unloading plugin '{}'", id);
 
@@ -91,12 +141,10 @@ public class DistinctPluginContainer implements PluginContainer {
         // manually invoke garbage collection; plugin classes are freed here, if they unregistered properly
         System.gc();
 
-        lock.unlock();
-
         logger.info("Plugin '{}' unloaded.", id);
     }
 
-    private synchronized void removePlugin(LoadedPlugin loadedPlugin) {
+    private void removePlugin(LoadedPlugin loadedPlugin) {
         Plugin plugin = loadedPlugin.getPlugin();  // reference to the foreign plugin class
 
         try {
@@ -105,7 +153,10 @@ public class DistinctPluginContainer implements PluginContainer {
             logger.error("Error unloading plugin, unloading anyways...", t);
         }
 
-        loadedPlugins.remove(loadedPlugin.getManifest().id());
+        var id = loadedPlugin.getManifest().id();
+
+        loadedPlugins.remove(id);
+        dependencyGraph.removeNode(id);
 
         loadedPlugin.remove();  // remove reference to the foreign plugin instance to enable gc
     }
