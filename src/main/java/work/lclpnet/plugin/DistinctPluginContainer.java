@@ -2,11 +2,10 @@ package work.lclpnet.plugin;
 
 import org.apache.logging.log4j.Logger;
 import work.lclpnet.plugin.load.LoadablePlugin;
+import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginAlreadyLoadedException;
 import work.lclpnet.plugin.load.PluginLoadException;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -65,7 +64,7 @@ public class DistinctPluginContainer implements PluginContainer {
         try {
             plugin.load();
         } catch (Throwable t) {
-            logger.error("Plugin %s threw an error on load. Unloading the plugin immediately...".formatted(id), t);
+            logger.error("Plugin '%s' threw an error on load. Unloading the plugin immediately...".formatted(id), t);
             loadError = true;
         }
 
@@ -107,14 +106,6 @@ public class DistinctPluginContainer implements PluginContainer {
         }
 
         loadedPlugins.remove(loadedPlugin.getManifest().id());
-
-        var classLoader = loadedPlugin.getClassLoader();
-
-        if (classLoader instanceof Closeable c) {
-            try {
-                c.close();
-            } catch (IOException ignored) {}
-        }
 
         loadedPlugin.remove();  // remove reference to the foreign plugin instance to enable gc
     }

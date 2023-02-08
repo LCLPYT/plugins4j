@@ -1,6 +1,7 @@
 package work.lclpnet.plugin.discover;
 
 import org.apache.logging.log4j.Logger;
+import work.lclpnet.plugin.load.ClassLoaderContainer;
 import work.lclpnet.plugin.load.LoadablePlugin;
 import work.lclpnet.plugin.load.UrlLoadablePlugin;
 import work.lclpnet.plugin.manifest.ManifestLoadException;
@@ -23,11 +24,14 @@ public class DirectoryPluginDiscoveryService implements PluginDiscoveryService {
 
     private final Path directory;
     private final PluginManifestLoader manifestLoader;
+    private final ClassLoaderContainer classLoaderContainer;
     private final Logger logger;
 
-    public DirectoryPluginDiscoveryService(Path directory, PluginManifestLoader manifestLoader, Logger logger) {
+    public DirectoryPluginDiscoveryService(Path directory, PluginManifestLoader manifestLoader,
+                                           ClassLoaderContainer classLoaderContainer, Logger logger) {
         this.directory = directory;
         this.manifestLoader = manifestLoader;
+        this.classLoaderContainer = classLoaderContainer;
         this.logger = logger;
     }
 
@@ -61,7 +65,7 @@ public class DirectoryPluginDiscoveryService implements PluginDiscoveryService {
 
         var url = path.toUri().toURL();
 
-        return Optional.of(new UrlLoadablePlugin(state.manifest, url, src));
+        return Optional.of(new UrlLoadablePlugin(state.manifest, url, src, classLoaderContainer));
     }
 
     private boolean isPlugin(Path path, State state) {

@@ -13,7 +13,7 @@ plugins {
 // Properties props = loadProperties.call('publish.properties')
 
 group project.maven_group
-version '0.1.0' // gitVersion.call()
+version '0.2.0' // gitVersion.call()
 
 repositories {
     mavenCentral()
@@ -25,6 +25,9 @@ configurations {
 
     testPluginImplementation.extendsFrom(implementation)
     testPluginRuntimeOnly.extendsFrom(runtimeOnly)
+
+    providerPluginImplementation.extendsFrom(implementation)
+    providerPluginRuntimeOnly.extendsFrom(runtimeOnly)
 }
 
 dependencies {
@@ -44,10 +47,16 @@ sourceSets {
             runtimeClasspath += main.output
         }
     }
-    testPlugin {
+    providerPlugin {
         java {
             compileClasspath += main.output
             runtimeClasspath += main.output
+        }
+    }
+    testPlugin {
+        java {
+            compileClasspath += main.output + providerPlugin.output
+            runtimeClasspath += main.output + providerPlugin.output
         }
     }
 }
@@ -79,10 +88,16 @@ task testPluginJar(type: Jar) {
     archiveBaseName.set('testPlugin')
 }
 
+task providerPluginJar(type: Jar) {
+    from sourceSets.providerPlugin.output
+    archiveVersion.set(project.version.toString())
+    archiveBaseName.set('providerPlugin')
+}
+
 shadowJar.enabled = false  // default shadowJar task should be disabled
 
 artifacts {
-    archives testPluginJar, consumerJar
+    archives testPluginJar, consumerJar, providerPluginJar
 }
 
 abstract class DeployTask extends DefaultTask {
@@ -121,7 +136,7 @@ abstract class DeployPluginsTask extends DefaultTask {
     static def copyPlugins(java.nio.file.Path libsDir, java.nio.file.Path pluginsDir, version) {
         if (!Files.exists(pluginsDir)) Files.createDirectories(pluginsDir)
 
-        def plugins = ['testPlugin']
+        def plugins = ['testPlugin', 'providerPlugin']
 
         plugins.forEach(plugin -> {
             def testPlugin = '%s-%s.jar'.formatted(plugin, version)

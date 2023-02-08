@@ -27,14 +27,16 @@ class UrlLoadablePluginTest {
                 Collections.emptySet()
         );
 
-        var loadable = new UrlLoadablePlugin(manifest, testPlugin.toUri().toURL(), testPlugin);
+        try (var clContainer = new DefaultClassLoaderContainer()) {
+            var loadable = new UrlLoadablePlugin(manifest, testPlugin.toUri().toURL(), testPlugin, clContainer);
 
-        var loaded = loadable.load();
-        assertNotNull(loaded);
-        assertNotNull(loaded.getPlugin());
-        assertEquals(testPlugin, loaded.getSource());
-        assertEquals("testPlugin", loaded.getId());
-        assertEquals(manifest, loaded.getManifest());
+            var loaded = loadable.load();
+            assertNotNull(loaded);
+            assertNotNull(loaded.getPlugin());
+            assertEquals(testPlugin, loaded.getSource());
+            assertEquals("testPlugin", loaded.getId());
+            assertEquals(manifest, loaded.getManifest());
+        }
     }
 
     @Test
@@ -52,13 +54,15 @@ class UrlLoadablePluginTest {
             }
         }
 
-        var loadable = new UrlLoadablePlugin(manifest, testPlugin.toUri().toURL(), testPlugin);
+        try (var clContainer = new DefaultClassLoaderContainer()) {
+            var loadable = new UrlLoadablePlugin(manifest, testPlugin.toUri().toURL(), testPlugin, clContainer);
 
-        var loaded = loadable.load();
-        assertNotNull(loaded);
-        assertNotNull(loaded.getPlugin());
-        assertEquals(testPlugin, loaded.getSource());
-        assertEquals("testPlugin", loaded.getId());
-        assertEquals(manifest, loaded.getManifest());
+            var loaded = loadable.load();
+            assertNotNull(loaded);
+            assertNotNull(loaded.getPlugin());
+            assertEquals(testPlugin, loaded.getSource());
+            assertEquals("testPlugin", loaded.getId());
+            assertEquals(manifest, loaded.getManifest());
+        }
     }
 }

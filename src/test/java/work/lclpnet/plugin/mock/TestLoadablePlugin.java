@@ -1,7 +1,7 @@
 package work.lclpnet.plugin.mock;
 
-import work.lclpnet.plugin.LoadedPlugin;
 import work.lclpnet.plugin.load.LoadablePlugin;
+import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginLoadException;
 import work.lclpnet.plugin.manifest.PluginManifest;
 
@@ -31,7 +31,7 @@ public class TestLoadablePlugin implements LoadablePlugin {
         // simulate plugin loading
         TestPlugin plugin = new TestPlugin(id, loadedIds);
 
-        return new LoadedPlugin(plugin, id, manifest, null);
+        return new TestLoadedPlugin(plugin, id, manifest);
     }
 
     public String getId() {

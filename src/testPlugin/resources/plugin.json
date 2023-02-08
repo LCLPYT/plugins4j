@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "id": "testPlugin",
+  "id": "test",
   "entry": "work.lclpnet.testPlugin.TestPlugin",
-  "dependsOn": []
+  "dependsOn": ["provider"]
 }

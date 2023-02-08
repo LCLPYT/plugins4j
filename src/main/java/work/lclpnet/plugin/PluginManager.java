@@ -1,5 +1,7 @@
 package work.lclpnet.plugin;
 
+import work.lclpnet.plugin.load.LoadedPlugin;
+
 import java.util.Optional;
 import java.util.Set;
 

@@ -3,7 +3,7 @@ package work.lclpnet.plugin.bootstrap;
 import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.Test;
 import work.lclpnet.plugin.DistinctPluginContainer;
-import work.lclpnet.plugin.LoadedPlugin;
+import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginLoadException;
 import work.lclpnet.plugin.mock.TestLoadablePlugin;
 import work.lclpnet.plugin.mock.TestPluginDiscovery;

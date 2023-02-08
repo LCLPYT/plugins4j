@@ -2,6 +2,7 @@ package work.lclpnet.plugin.discover;
 
 import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.Test;
+import work.lclpnet.plugin.load.DefaultClassLoaderContainer;
 import work.lclpnet.plugin.mock.TestManifestLoader;
 
 import java.io.IOException;
@@ -20,9 +21,12 @@ class DirectoryPluginDiscoveryServiceTest {
 
         var logger = LogManager.getLogger();
         var manifestLoader = new TestManifestLoader();
-        var discovery = new DirectoryPluginDiscoveryService(testPluginsDir, manifestLoader, logger);
 
-        assertEquals(1, discovery.discover().count());
+        try (var clContainer = new DefaultClassLoaderContainer()) {
+            var discovery = new DirectoryPluginDiscoveryService(testPluginsDir, manifestLoader, clContainer, logger);
+
+            assertEquals(1, discovery.discover().count());
+        }
     }
 
     @Test
@@ -32,11 +36,14 @@ class DirectoryPluginDiscoveryServiceTest {
 
         var logger = LogManager.getLogger();
         var manifestLoader = new TestManifestLoader();
-        var discovery = new DirectoryPluginDiscoveryService(testPluginsDir, manifestLoader, logger);
 
-        var pluginPath = testPluginsDir.resolve("testPlugin-1.0.0.jar");
-        assertTrue(Files.isRegularFile(pluginPath));
+        try (var clContainer = new DefaultClassLoaderContainer()) {
+            var discovery = new DirectoryPluginDiscoveryService(testPluginsDir, manifestLoader, clContainer, logger);
 
-        assertTrue(discovery.discoverFrom(pluginPath).isPresent());
+            var pluginPath = testPluginsDir.resolve("testPlugin-1.0.0.jar");
+            assertTrue(Files.isRegularFile(pluginPath));
+
+            assertTrue(discovery.discoverFrom(pluginPath).isPresent());
+        }
     }
 }

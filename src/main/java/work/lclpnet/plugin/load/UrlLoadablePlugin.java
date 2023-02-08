@@ -1,6 +1,5 @@
 package work.lclpnet.plugin.load;
 
-import work.lclpnet.plugin.LoadedPlugin;
 import work.lclpnet.plugin.Plugin;
 import work.lclpnet.plugin.manifest.PluginManifest;
 
@@ -12,11 +11,13 @@ public class UrlLoadablePlugin implements LoadablePlugin {
     private final PluginManifest manifest;
     private final URL url;
     private final Object source;
+    private final ClassLoaderContainer classLoaderContainer;
 
-    public UrlLoadablePlugin(PluginManifest manifest, URL url, Object source) {
+    public UrlLoadablePlugin(PluginManifest manifest, URL url, Object source, ClassLoaderContainer classLoaderContainer) {
         this.manifest = manifest;
         this.url = url;
         this.source = source;
+        this.classLoaderContainer = classLoaderContainer;
     }
 
     @Override
@@ -28,7 +29,7 @@ public class UrlLoadablePlugin implements LoadablePlugin {
     public LoadedPlugin load() throws PluginLoadException {
         Plugin plugin;
 
-        var classLoader = new PluginClassLoader(url, manifest);
+        var classLoader = new PluginClassLoader(url, getClass().getClassLoader(), manifest, classLoaderContainer);
 
         try {
             plugin = classLoader.loadPlugin();
@@ -40,6 +41,6 @@ public class UrlLoadablePlugin implements LoadablePlugin {
             throw new PluginLoadException("Failed to load plugin '%s'".formatted(url), e);
         }
 
-        return new LoadedPlugin(plugin, source, manifest, classLoader);
+        return new JarLoadedPlugin(plugin, source, manifest, classLoader, classLoaderContainer);
     }
 }

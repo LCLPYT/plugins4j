@@ -2,6 +2,7 @@ package work.lclpnet.plugin;
 
 import work.lclpnet.plugin.discover.PluginDiscoveryService;
 import work.lclpnet.plugin.load.LoadablePlugin;
+import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginLoadException;
 
 import java.io.IOException;

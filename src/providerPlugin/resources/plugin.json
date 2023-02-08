@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "id": "provider",
+  "entry": "work.lclpnet.provider.ProviderPlugin",
+  "dependsOn": []
+}

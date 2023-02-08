@@ -11,16 +11,16 @@ import java.util.Objects;
 public class PluginClassLoader extends URLClassLoader {
 
     private final PluginManifest manifest;
+    private final ClassResolver classResolver;
 
     /**
      * Creates a new JarClassLoader for the specified url.
-     *
-     * @param url the url of the jar file
      */
-    public PluginClassLoader(URL url, PluginManifest manifest) {
-        super(new URL[] { Objects.requireNonNull(url) });
+    public PluginClassLoader(URL url, ClassLoader parent, PluginManifest manifest, ClassResolver classResolver) {
+        super(new URL[] { Objects.requireNonNull(url) }, parent);
 
         this.manifest = Objects.requireNonNull(manifest);
+        this.classResolver = classResolver;
     }
 
     public Plugin loadPlugin() throws ReflectiveOperationException {
@@ -39,5 +39,22 @@ public class PluginClassLoader extends URLClassLoader {
         }
 
         return (Plugin) constructor.newInstance();
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        try {
+            Class<?> res = super.findClass(name);
+            if (res != null) return res;
+        } catch (ClassNotFoundException ignored) {}
+
+        // class is not in our plugin jar, ask the other class loaders
+        var otherPluginClass = this.classResolver.resolve(name, this);
+
+        if (otherPluginClass.isPresent()) {
+            return otherPluginClass.get();
+        }
+
+        throw new ClassNotFoundException(name);
     }
 }

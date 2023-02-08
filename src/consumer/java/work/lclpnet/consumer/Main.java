@@ -5,6 +5,7 @@ import work.lclpnet.plugin.DistinctPluginContainer;
 import work.lclpnet.plugin.SimplePluginManager;
 import work.lclpnet.plugin.bootstrap.OrderedPluginBootstrap;
 import work.lclpnet.plugin.discover.DirectoryPluginDiscoveryService;
+import work.lclpnet.plugin.load.DefaultClassLoaderContainer;
 import work.lclpnet.plugin.manifest.JsonManifestLoader;
 
 import java.io.IOException;
@@ -15,8 +16,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
         final var logger = LogManager.getLogger(Main.class);
 
+        final var classLoaderContainer = new DefaultClassLoaderContainer();
+
         final var pluginDiscoveryService = new DirectoryPluginDiscoveryService(
-                Path.of("plugins"), new JsonManifestLoader(), logger
+                Path.of("plugins"), new JsonManifestLoader(), classLoaderContainer, logger
         );
 
         final var pluginContainer = new DistinctPluginContainer(logger);
@@ -30,6 +33,7 @@ public class Main {
             new Cli(pluginManager).start();
         } finally {
             pluginManager.shutdown();
+            classLoaderContainer.close();
         }
     }
 }
