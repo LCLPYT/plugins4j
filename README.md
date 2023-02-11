@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'work.lclpnet:plugins4j:0.3.0'  // replace with your version
+    implementation 'work.lclpnet:plugins4j:0.4.0'  // replace with your version
 }
 ```
 All available versions can be found [here](https://repo.lclpnet.work/#artifact/work.lclpnet/plugins4j).
