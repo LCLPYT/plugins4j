@@ -10,7 +10,7 @@ plugins {
     id 'gradle-build-utils'
 }
 
- Properties props = loadProperties.call('publish.properties')
+Properties props = loadProperties.call('publish.properties')
 
 group project.maven_group
 version gitVersion.call()
@@ -71,6 +71,10 @@ sourceSets {
 
 test {
     useJUnitPlatform()
+}
+
+java {
+    withSourcesJar()
 }
 
 task exampleJar(type: ShadowJar) {
