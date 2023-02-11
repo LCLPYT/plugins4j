@@ -1,7 +1,8 @@
 package work.lclpnet.plugin.bootstrap;
 
-import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.lclpnet.plugin.DistinctPluginContainer;
 import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginLoadException;
@@ -20,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OrderedPluginBootstrapTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger("test");
+
     @Test
     void isPluginLoaded_boostrap_loaded() throws IOException {
         final var loadedIds = new ArrayList<String>();
@@ -27,9 +30,8 @@ class OrderedPluginBootstrapTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB");
 
-        final var logger = LogManager.getLogger();
         final var discovery = new TestPluginDiscovery(pluginA, pluginB);
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         var boostrap = new OrderedPluginBootstrap(discovery, container);
         boostrap.loadPlugins();
@@ -47,9 +49,8 @@ class OrderedPluginBootstrapTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", pluginA.getId());
 
-        final var logger = LogManager.getLogger();
         final var discovery = new TestPluginDiscovery(pluginB, pluginA);
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         var boostrap = new OrderedPluginBootstrap(discovery, container);
         boostrap.loadPlugins();
@@ -65,9 +66,8 @@ class OrderedPluginBootstrapTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA", "pluginB");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
 
-        final var logger = LogManager.getLogger();
         final var discovery = new TestPluginDiscovery(pluginB, pluginA);
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         var boostrap = new OrderedPluginBootstrap(discovery, container);
         assertThrows(PluginLoadException.class, boostrap::loadPlugins);
@@ -81,9 +81,8 @@ class OrderedPluginBootstrapTest {
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginC");
         final var pluginC = new TestLoadablePlugin(loadedIds, "pluginC", "pluginA");
 
-        final var logger = LogManager.getLogger();
         final var discovery = new TestPluginDiscovery(pluginB, pluginA, pluginC);
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         var boostrap = new OrderedPluginBootstrap(discovery, container);
         assertThrows(PluginLoadException.class, boostrap::loadPlugins);
@@ -100,9 +99,8 @@ class OrderedPluginBootstrapTest {
         final var pluginE = new TestLoadablePlugin(loadedIds, "pluginE", "pluginD");
         final var pluginF = new TestLoadablePlugin(loadedIds, "pluginF", "pluginB");
 
-        final var logger = LogManager.getLogger();
         final var discovery = new TestPluginDiscovery(pluginA, pluginB, pluginC, pluginD, pluginE, pluginF);
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         var boostrap = new OrderedPluginBootstrap(discovery, container);
         boostrap.loadPlugins();
@@ -128,9 +126,8 @@ class OrderedPluginBootstrapTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginA");
 
-        final var logger = LogManager.getLogger();
         final var discovery = new TestPluginDiscovery(pluginB, pluginA);
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         var boostrap = new OrderedPluginBootstrap(discovery, container);
         assertThrows(PluginLoadException.class, boostrap::loadPlugins);

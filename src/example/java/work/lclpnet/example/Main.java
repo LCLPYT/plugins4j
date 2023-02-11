@@ -1,6 +1,6 @@
 package work.lclpnet.example;
 
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.LoggerFactory;
 import work.lclpnet.plugin.DistinctPluginContainer;
 import work.lclpnet.plugin.SimplePluginManager;
 import work.lclpnet.plugin.bootstrap.OrderedPluginBootstrap;
@@ -14,7 +14,7 @@ import java.nio.file.Path;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        final var logger = LogManager.getLogger(Main.class);
+        final var logger = LoggerFactory.getLogger(Main.class);
 
         final var classLoaderContainer = new DefaultClassLoaderContainer();
 

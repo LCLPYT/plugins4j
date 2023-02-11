@@ -1,6 +1,6 @@
 package work.lclpnet.plugin;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import work.lclpnet.plugin.graph.DAG;
 import work.lclpnet.plugin.load.LoadablePlugin;
 import work.lclpnet.plugin.load.LoadedPlugin;

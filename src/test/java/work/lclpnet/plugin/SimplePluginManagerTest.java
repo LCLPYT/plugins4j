@@ -1,7 +1,8 @@
 package work.lclpnet.plugin;
 
-import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.mock.TestLoadablePlugin;
 import work.lclpnet.plugin.mock.TestPluginDiscovery;
@@ -16,14 +17,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SimplePluginManagerTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger("test");
+
     @Test
     void loadPlugin_one_loaded() {
         final var loadedIds = new ArrayList<String>();
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
 
-        var logger = LogManager.getLogger();
         var discovery = new TestPluginDiscovery(pluginA);
-        var container = new DistinctPluginContainer(logger);
+        var container = new DistinctPluginContainer(LOGGER);
 
         var pluginManager = new SimplePluginManager(discovery, container);
         pluginManager.loadPlugin("pluginA");
@@ -42,9 +44,8 @@ class SimplePluginManagerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB");
 
-        var logger = LogManager.getLogger();
         var discovery = new TestPluginDiscovery(pluginA, pluginB);
-        var container = new DistinctPluginContainer(logger);
+        var container = new DistinctPluginContainer(LOGGER);
 
         var pluginManager = new SimplePluginManager(discovery, container);
         pluginManager.loadPlugin("pluginA");
@@ -64,9 +65,8 @@ class SimplePluginManagerTest {
         final var loadedIds = new ArrayList<String>();
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
 
-        var logger = LogManager.getLogger();
         var discovery = new TestPluginDiscovery(pluginA);
-        var container = new DistinctPluginContainer(logger);
+        var container = new DistinctPluginContainer(LOGGER);
 
         var pluginManager = new SimplePluginManager(discovery, container);
         pluginManager.loadPlugin("pluginA");
@@ -88,9 +88,8 @@ class SimplePluginManagerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB");
 
-        var logger = LogManager.getLogger();
         var discovery = new TestPluginDiscovery(pluginA, pluginB);
-        var container = new DistinctPluginContainer(logger);
+        var container = new DistinctPluginContainer(LOGGER);
 
         var pluginManager = new SimplePluginManager(discovery, container);
         pluginManager.loadPlugin("pluginA");
@@ -117,9 +116,8 @@ class SimplePluginManagerTest {
         final var loadedIds = new ArrayList<String>();
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
 
-        var logger = LogManager.getLogger();
         var discovery = new TestPluginDiscovery(pluginA);
-        var container = new DistinctPluginContainer(logger);
+        var container = new DistinctPluginContainer(LOGGER);
 
         var pluginManager = new SimplePluginManager(discovery, container);
         pluginManager.loadPlugin("pluginA");
@@ -140,9 +138,8 @@ class SimplePluginManagerTest {
         final var loadedIds = new ArrayList<String>();
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
 
-        var logger = LogManager.getLogger();
         var discovery = new TestPluginDiscovery(pluginA);
-        var container = new DistinctPluginContainer(logger);
+        var container = new DistinctPluginContainer(LOGGER);
 
         var pluginManager = new SimplePluginManager(discovery, container);
         pluginManager.loadPlugin("pluginA");
@@ -157,9 +154,8 @@ class SimplePluginManagerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB");
 
-        var logger = LogManager.getLogger();
         var discovery = new TestPluginDiscovery(pluginA, pluginB);
-        var container = new DistinctPluginContainer(logger);
+        var container = new DistinctPluginContainer(LOGGER);
 
         var pluginManager = new SimplePluginManager(discovery, container);
         pluginManager.loadPlugin("pluginA");

@@ -1,6 +1,6 @@
 package work.lclpnet.plugin.discover;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import work.lclpnet.plugin.load.ClassLoaderContainer;
 import work.lclpnet.plugin.load.LoadablePlugin;
 import work.lclpnet.plugin.load.UrlLoadablePlugin;

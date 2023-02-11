@@ -1,7 +1,8 @@
 package work.lclpnet.plugin;
 
-import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginLoadException;
 import work.lclpnet.plugin.mock.TestLoadablePlugin;
@@ -16,14 +17,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DistinctPluginContainerTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger("test");
+
     @Test
     void loadPlugin_one_loaded() {
         final var loadedIds = new ArrayList<String>();
 
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
 
@@ -43,8 +45,7 @@ class DistinctPluginContainerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
         container.loadPlugin(pluginB);
@@ -63,8 +64,7 @@ class DistinctPluginContainerTest {
     void getPlugin_one_present() {
         final var pluginA = new TestLoadablePlugin(new ArrayList<>(), "pluginA");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
 
@@ -80,8 +80,7 @@ class DistinctPluginContainerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
         container.loadPlugin(pluginB);
@@ -97,8 +96,7 @@ class DistinctPluginContainerTest {
 
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
 
@@ -127,8 +125,7 @@ class DistinctPluginContainerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
         container.loadPlugin(pluginB);
@@ -164,8 +161,7 @@ class DistinctPluginContainerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         assertThrows(PluginLoadException.class, () -> container.loadPlugin(pluginB));
         container.loadPlugin(pluginA);
@@ -189,8 +185,7 @@ class DistinctPluginContainerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         assertThrows(PluginLoadException.class, () -> container.loadPlugin(pluginB));
         container.loadPlugin(pluginA);
@@ -217,8 +212,7 @@ class DistinctPluginContainerTest {
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
         final var pluginC = new TestLoadablePlugin(loadedIds, "pluginC", "pluginB");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
         container.loadPlugin(pluginB);
@@ -243,8 +237,7 @@ class DistinctPluginContainerTest {
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
         final var pluginC = new TestLoadablePlugin(loadedIds, "pluginC", "pluginB");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
         container.loadPlugin(pluginB);
@@ -282,8 +275,7 @@ class DistinctPluginContainerTest {
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
         final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
 
-        final var logger = LogManager.getLogger();
-        final var container = new DistinctPluginContainer(logger);
+        final var container = new DistinctPluginContainer(LOGGER);
 
         container.loadPlugin(pluginA);
         container.loadPlugin(pluginB);
