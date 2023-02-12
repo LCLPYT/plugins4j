@@ -27,6 +27,11 @@ public class TestLoadablePlugin implements LoadablePlugin {
     }
 
     @Override
+    public Object getSource() {
+        return id;
+    }
+
+    @Override
     public LoadedPlugin load() throws PluginLoadException {
         // simulate plugin loading
         TestPlugin plugin = new TestPlugin(id, loadedIds);

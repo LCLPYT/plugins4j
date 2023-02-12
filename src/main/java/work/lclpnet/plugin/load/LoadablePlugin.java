@@ -6,5 +6,7 @@ public interface LoadablePlugin {
 
     PluginManifest getManifest();
 
+    Object getSource();
+
     LoadedPlugin load() throws PluginLoadException;
 }

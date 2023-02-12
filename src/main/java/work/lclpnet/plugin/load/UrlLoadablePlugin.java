@@ -26,6 +26,11 @@ public class UrlLoadablePlugin implements LoadablePlugin {
     }
 
     @Override
+    public Object getSource() {
+        return source;
+    }
+
+    @Override
     public LoadedPlugin load() throws PluginLoadException {
         Plugin plugin;
 
