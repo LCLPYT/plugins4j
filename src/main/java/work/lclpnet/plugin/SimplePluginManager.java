@@ -26,8 +26,8 @@ public class SimplePluginManager implements PluginManager {
      * @param src Plugin source. E.g. a {@link Path}.
      */
     @Override
-    public void loadPlugin(Object src) {
-        if (!acceptNewPlugins) return;
+    public Optional<LoadedPlugin> loadPlugin(Object src) {
+        if (!acceptNewPlugins) return Optional.empty();
 
         LoadablePlugin loadable;
 
@@ -48,7 +48,7 @@ public class SimplePluginManager implements PluginManager {
             loadable = plugin.get();
         }
 
-        pluginContainer.loadPlugin(loadable);
+        return pluginContainer.loadPlugin(loadable);
     }
 
     @Override

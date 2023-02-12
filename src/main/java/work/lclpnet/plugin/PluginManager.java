@@ -7,7 +7,7 @@ import java.util.Set;
 
 public interface PluginManager {
 
-    void loadPlugin(Object src);
+    Optional<LoadedPlugin> loadPlugin(Object src);
 
     void unloadPlugin(LoadedPlugin plugin);
 

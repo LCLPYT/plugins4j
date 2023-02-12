@@ -65,7 +65,7 @@ public class DistinctPluginContainer implements PluginContainer {
     }
 
     @Override
-    public void loadPlugin(LoadablePlugin loadable) {
+    public Optional<LoadedPlugin> loadPlugin(LoadablePlugin loadable) {
         lock.lock();
 
         final var id = loadable.getManifest().id();
@@ -104,8 +104,10 @@ public class DistinctPluginContainer implements PluginContainer {
 
         if (loadError) {
             this.unloadPlugin(loaded);
+            return Optional.empty();
         } else {
             logger.info("Plugin {} has been loaded.", id);
+            return Optional.of(loaded);
         }
     }
 

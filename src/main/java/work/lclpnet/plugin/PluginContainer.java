@@ -15,7 +15,7 @@ public interface PluginContainer {
 
     Optional<LoadedPlugin> getPlugin(String id);
 
-    void loadPlugin(LoadablePlugin plugin);
+    Optional<LoadedPlugin> loadPlugin(LoadablePlugin plugin);
 
     void unloadPlugin(LoadedPlugin plugin);
 
