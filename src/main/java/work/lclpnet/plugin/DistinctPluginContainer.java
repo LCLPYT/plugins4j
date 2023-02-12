@@ -39,12 +39,25 @@ public class DistinctPluginContainer implements PluginContainer {
 
     @Override
     public List<LoadedPlugin> getOrderedDependants(LoadedPlugin plugin) {
-        var node = dependencyGraph.getNode(plugin.getId()).orElseThrow();
-        var dependencyOrder = dependencyGraph.getTopologicalOrder(Set.of(node));
+        var dependencyOrder = getOrderedDependencies(Set.of(plugin));
 
         if (!dependencyOrder.isEmpty()) {
             dependencyOrder.remove(0);  // remove self
         }
+
+        return dependencyOrder;
+    }
+
+    @Override
+    public List<LoadedPlugin> getOrderedDependencies(Set<LoadedPlugin> plugins) {
+        Set<DAG.Node<LoadedPlugin>> rootNodes = new HashSet<>();
+
+        for (LoadedPlugin plugin : plugins) {
+            var node = dependencyGraph.getNode(plugin.getId()).orElseThrow();
+            rootNodes.add(node);
+        }
+
+        var dependencyOrder = dependencyGraph.getTopologicalOrder(rootNodes);
 
         return dependencyOrder.stream()
                 .map(DAG.Node::getObj)

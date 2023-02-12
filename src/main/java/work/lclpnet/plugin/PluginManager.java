@@ -15,6 +15,8 @@ public interface PluginManager {
 
     void reloadPlugin(LoadedPlugin loaded);
 
+    void reloadPlugins(Set<LoadedPlugin> loaded);
+
     boolean isPluginLoaded(String id);
 
     Set<LoadedPlugin> getPlugins();

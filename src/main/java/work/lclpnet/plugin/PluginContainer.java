@@ -20,4 +20,6 @@ public interface PluginContainer {
     void unloadPlugin(LoadedPlugin plugin);
 
     List<LoadedPlugin> getOrderedDependants(LoadedPlugin plugin);
+
+    List<LoadedPlugin> getOrderedDependencies(Set<LoadedPlugin> plugins);
 }

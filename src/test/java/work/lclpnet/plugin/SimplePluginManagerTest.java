@@ -134,6 +134,38 @@ class SimplePluginManagerTest {
     }
 
     @Test
+    void reloadPlugins() {
+        final var loadedIds = new ArrayList<String>();
+        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
+        final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
+        final var pluginC = new TestLoadablePlugin(loadedIds, "pluginC");
+
+        var discovery = new TestPluginDiscovery(pluginA, pluginB, pluginC);
+        var container = new DistinctPluginContainer(LOGGER);
+
+        var pluginManager = new SimplePluginManager(discovery, container);
+        pluginManager.loadPlugin("pluginA");
+        pluginManager.loadPlugin("pluginB");
+        pluginManager.loadPlugin("pluginC");
+
+        var loadedA = pluginManager.getPlugin("pluginA").orElseThrow();
+        var loadedB = pluginManager.getPlugin("pluginB").orElseThrow();
+        var loadedC = pluginManager.getPlugin("pluginC").orElseThrow();
+
+        // NOTE: don't actually keep a direct reference of the actual foreign plugin class in production
+        var beforeA = loadedA.getPlugin();
+        var beforeB = loadedB.getPlugin();
+        var beforeC = loadedC.getPlugin();
+
+        pluginManager.reloadPlugins(Set.of(loadedA, loadedB, loadedC));
+
+        // check that the actual plugin has been swapped
+        assertNotEquals(beforeA, pluginManager.getPlugin("pluginA").orElseThrow().getPlugin());
+        assertNotEquals(beforeB, pluginManager.getPlugin("pluginB").orElseThrow().getPlugin());
+        assertNotEquals(beforeC, pluginManager.getPlugin("pluginC").orElseThrow().getPlugin());
+    }
+
+    @Test
     void getPlugin_one_present() {
         final var loadedIds = new ArrayList<String>();
         final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
