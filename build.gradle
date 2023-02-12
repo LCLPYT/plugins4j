@@ -33,7 +33,6 @@ configurations {
 dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.6'
     implementation 'org.json:json:20220924'
-    implementation 'org.apache.commons:commons-collections4:4.4'
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
