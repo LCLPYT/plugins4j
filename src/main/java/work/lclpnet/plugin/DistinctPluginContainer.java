@@ -106,7 +106,7 @@ public class DistinctPluginContainer implements PluginContainer {
             this.unloadPlugin(loaded);
             return Optional.empty();
         } else {
-            logger.info("Plugin {} has been loaded.", id);
+            logger.info("Plugin '{}' has been loaded.", id);
             return Optional.of(loaded);
         }
     }
