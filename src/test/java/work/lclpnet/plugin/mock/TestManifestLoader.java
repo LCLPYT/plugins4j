@@ -1,5 +1,6 @@
 package work.lclpnet.plugin.mock;
 
+import work.lclpnet.plugin.manifest.BasePluginManifest;
 import work.lclpnet.plugin.manifest.ManifestLoadException;
 import work.lclpnet.plugin.manifest.PluginManifest;
 import work.lclpnet.plugin.manifest.PluginManifestLoader;
@@ -20,6 +21,6 @@ public class TestManifestLoader implements PluginManifestLoader {
     }
 
     public static PluginManifest manifest(String id, String entry, Set<String> dependencies) {
-        return new PluginManifest(PluginManifestLoader.VERSION, id, entry, dependencies);
+        return new BasePluginManifest(PluginManifestLoader.VERSION, id, entry, dependencies);
     }
 }

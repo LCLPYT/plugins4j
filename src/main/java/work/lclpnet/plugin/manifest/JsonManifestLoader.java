@@ -45,7 +45,7 @@ public class JsonManifestLoader implements PluginManifestLoader {
                 .map(x -> (String) x)
                 .collect(Collectors.toUnmodifiableSet()) : Collections.<String>emptySet();
 
-        return new PluginManifest(version, id, entry, dependsOn);
+        return new BasePluginManifest(version, id, entry, dependsOn);
     }
 
     private static void require(JSONObject obj, String key, Predicate<Object> predicate) throws ManifestLoadException {
