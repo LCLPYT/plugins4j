@@ -21,6 +21,6 @@ public class TestManifestLoader implements PluginManifestLoader {
     }
 
     public static PluginManifest manifest(String id, String entry, Set<String> dependencies) {
-        return new BasePluginManifest(PluginManifestLoader.VERSION, id, entry, dependencies);
+        return new BasePluginManifest("0.1.0-SNAPSHOT", id, entry, dependencies);
     }
 }

@@ -41,7 +41,7 @@ class DirectoryPluginDiscoveryServiceTest {
         try (var clContainer = new DefaultClassLoaderContainer()) {
             var discovery = new DirectoryPluginDiscoveryService(testPluginsDir, manifestLoader, clContainer, LOGGER);
 
-            var pluginPath = testPluginsDir.resolve("testPlugin-1.0.0.jar");
+            var pluginPath = testPluginsDir.resolve("testPlugin.jar");
             assertTrue(Files.isRegularFile(pluginPath));
 
             assertTrue(discovery.discoverFrom(pluginPath).isPresent());

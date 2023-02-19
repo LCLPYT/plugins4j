@@ -21,6 +21,12 @@ public class TestLoadablePlugin implements LoadablePlugin {
         this.manifest = TestManifestLoader.manifest(id, Arrays.stream(dependencies).collect(Collectors.toSet()));
     }
 
+    public TestLoadablePlugin(List<String> loadedIds, String id, PluginManifest manifest) {
+        this.loadedIds = loadedIds;
+        this.id = id;
+        this.manifest = manifest;
+    }
+
     @Override
     public PluginManifest getManifest() {
         return manifest;

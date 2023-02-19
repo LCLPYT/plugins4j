@@ -21,7 +21,8 @@ class JsonManifestLoaderTest {
 
     private static final String TEST_MANIFEST = """
             {
-              "version": "1",
+              "schemaVersion": 1,
+              "version": "0.1.0-SNAPSHOT",
               "id": "testPlugin",
               "entry": "work.lclpnet.testPlugin.TestPlugin",
               "dependsOn": []
@@ -30,7 +31,7 @@ class JsonManifestLoaderTest {
 
     /** sets all the required properties on a JsonBuilder instance */
     private static final Set<UnaryOperator<JsonBuilder>> REQUIRED = Set.of(
-            b -> b.withVersion(PluginManifestLoader.VERSION),
+            b -> b.withVersion("0.1.0-SNAPSHOT"),
             b -> b.withId("testPlugin"),
             b -> b.withEntry("work.lclpnet.testPlugin.TestPlugin")
     );
@@ -168,6 +169,16 @@ class JsonManifestLoaderTest {
     }
 
     @Test
+    void load_invalidSchemaVersion_throws() throws IOException {
+        assertInvalidPropertyTypes(
+                // setter
+                JsonBuilder::withSchemaVersion,
+                // invalid json types that need to be checked
+                CHECK_STRING, CHECK_BOOLEAN, CHECK_NULL, CHECK_OBJECT, CHECK_ANY_ARRAY
+        );
+    }
+
+    @Test
     void load_invalidVersion_throws() throws IOException {
         assertInvalidPropertyTypes(
                 // setter
@@ -207,6 +218,15 @@ class JsonManifestLoaderTest {
 
     private static class JsonBuilder {
         private final JSONObject obj = new JSONObject();
+
+        public JsonBuilder() {
+            withSchemaVersion(JsonManifestLoader.SCHEMA_VERSION);
+        }
+
+        public JsonBuilder withSchemaVersion(Object schemaVersion) {
+            obj.put("schemaVersion", schemaVersion);
+            return this;
+        }
 
         public JsonBuilder withVersion(Object version) {
             obj.put("version", version);

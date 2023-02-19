@@ -72,15 +72,12 @@ public class DistinctPluginContainer implements PluginContainer {
 
         logger.info("Loading plugin '{}'", id);
 
-        if (isPluginLoaded(id)) {
+        // check if the plugin can be loaded
+        try {
+            ensurePluginCanBeLoaded(loadable);
+        } catch (Throwable t) {
             lock.unlock();
-            throw new PluginAlreadyLoadedException("Plugin with id '%s' is already loaded".formatted(id));
-        }
-
-        for (var dependency : loadable.getManifest().dependsOn()) {
-            if (!isPluginLoaded(dependency)) {
-                throw new PluginLoadException("Unknown dependency '%s'".formatted(dependency));
-            }
+            throw t;
         }
 
         final var loaded = loadable.load();
@@ -108,6 +105,20 @@ public class DistinctPluginContainer implements PluginContainer {
         } else {
             logger.info("Plugin '{}' has been loaded.", id);
             return Optional.of(loaded);
+        }
+    }
+
+    public void ensurePluginCanBeLoaded(LoadablePlugin loadable) throws PluginLoadException {
+        final var id = loadable.getManifest().id();
+
+        if (isPluginLoaded(id)) {
+            throw new PluginAlreadyLoadedException("Plugin with id '%s' is already loaded".formatted(id));
+        }
+
+        for (var dependency : loadable.getManifest().dependsOn()) {
+            if (!isPluginLoaded(dependency)) {
+                throw new PluginLoadException("Unknown dependency '%s'".formatted(dependency));
+            }
         }
     }
 

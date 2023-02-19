@@ -1,5 +1,6 @@
 {
-  "version": "1",
+  "schemaVersion": 1,
+  "version": "0.1.0-SNAPSHOT",
   "id": "test",
   "entry": "work.lclpnet.testPlugin.TestPlugin",
   "dependsOn": ["provider"]

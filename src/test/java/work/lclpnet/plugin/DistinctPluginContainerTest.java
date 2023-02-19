@@ -5,9 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.lclpnet.plugin.load.LoadedPlugin;
 import work.lclpnet.plugin.load.PluginLoadException;
+import work.lclpnet.plugin.manifest.BasePluginManifest;
+import work.lclpnet.plugin.mock.ExtendedDistinctPluginContainer;
 import work.lclpnet.plugin.mock.TestLoadablePlugin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -272,23 +275,14 @@ class DistinctPluginContainerTest {
     void getOrderedDependants_unloadDependants_happens() {
         final var loadedIds = new ArrayList<String>();
 
-        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
-        final var pluginB = new TestLoadablePlugin(loadedIds, "pluginB", "pluginA");
+        final var manifest = new BasePluginManifest("2", "pluginA", null, Collections.emptySet());
+        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA", manifest);
 
-        final var container = new DistinctPluginContainer(LOGGER);
+        // distinct plugin container should be extendable
+        final var container = new ExtendedDistinctPluginContainer(LOGGER);
 
-        container.loadPlugin(pluginA);
-        container.loadPlugin(pluginB);
-
-        assertEquals(
-                Set.of(pluginA.getId(), pluginB.getId()),
-                container.getPlugins().stream().map(LoadedPlugin::getId).collect(Collectors.toSet())
-        );
-
-        var loadedPluginA = container.getPlugin(pluginA.getId()).orElseThrow();
-
-        container.unloadPlugin(loadedPluginA);
-
-        assertEquals(Set.of(), container.getPlugins());
+        // should not load due to version semver requirement in ExtendedDistinctPluginContainer
+        assertThrowsExactly(PluginLoadException.class, () -> container.loadPlugin(pluginA),
+                "Plugin version does not respect semver");
     }
 }

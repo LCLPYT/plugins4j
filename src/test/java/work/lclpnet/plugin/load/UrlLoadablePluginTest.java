@@ -18,11 +18,11 @@ class UrlLoadablePluginTest {
 
     @Test
     void load_testPlugin_succeeds() throws MalformedURLException {
-        var testPlugin = Path.of("src/test/resources/plugins/testPlugin-1.0.0.jar");
+        var testPlugin = Path.of("src/test/resources/plugins/testPlugin.jar");
         assertTrue(Files.isRegularFile(testPlugin));
 
         var manifest = TestManifestLoader.manifest(
-                "testPlugin",
+                "test",
                 "work.lclpnet.testPlugin.TestPlugin",
                 Collections.emptySet()
         );
@@ -34,14 +34,14 @@ class UrlLoadablePluginTest {
             assertNotNull(loaded);
             assertNotNull(loaded.getPlugin());
             assertEquals(testPlugin, loaded.getSource());
-            assertEquals("testPlugin", loaded.getId());
+            assertEquals("test", loaded.getId());
             assertEquals(manifest, loaded.getManifest());
         }
     }
 
     @Test
     void load_testPluginVersion_isValid() throws IOException {
-        var testPlugin = Path.of("src/test/resources/plugins/testPlugin-1.0.0.jar");
+        var testPlugin = Path.of("src/test/resources/plugins/testPlugin.jar");
         assertTrue(Files.isRegularFile(testPlugin));
 
         PluginManifest manifest;
@@ -61,7 +61,7 @@ class UrlLoadablePluginTest {
             assertNotNull(loaded);
             assertNotNull(loaded.getPlugin());
             assertEquals(testPlugin, loaded.getSource());
-            assertEquals("testPlugin", loaded.getId());
+            assertEquals("test", loaded.getId());
             assertEquals(manifest, loaded.getManifest());
         }
     }

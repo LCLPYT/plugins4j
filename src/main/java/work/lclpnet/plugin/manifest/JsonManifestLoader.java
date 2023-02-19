@@ -16,7 +16,9 @@ import java.util.stream.StreamSupport;
 
 public class JsonManifestLoader implements PluginManifestLoader {
 
+    public static final int SCHEMA_VERSION = 1;
     protected static final Predicate<Object> STRING = x -> x instanceof String s && !s.isBlank();
+    protected static final Predicate<Object> INT = x -> x instanceof Integer;
 
     @Override
     public PluginManifest load(InputStream in) throws IOException {
@@ -34,9 +36,13 @@ public class JsonManifestLoader implements PluginManifestLoader {
     }
 
     public PluginManifest loadFromJson(JSONObject obj) {
+        require(obj, "schemaVersion", INT);
+        final int schemaVersion = obj.getInt("schemaVersion");
+
+        if (SCHEMA_VERSION != schemaVersion) throw new ManifestLoadException("Invalid manifest version");
+
         require(obj, "version", STRING);
         final String version = obj.getString("version");
-        if (!VERSION.equalsIgnoreCase(version)) throw new ManifestLoadException("Invalid manifest version");
 
         require(obj, "id", STRING);
         final String id = obj.getString("id");

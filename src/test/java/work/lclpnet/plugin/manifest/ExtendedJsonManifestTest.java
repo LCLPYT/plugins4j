@@ -18,7 +18,8 @@ public class ExtendedJsonManifestTest {
 
     private static final String TEST_MANIFEST = """
             {
-              "version": "1",
+              "schemaVersion": 1,
+              "version": "0.1.0-SNAPSHOT",
               "id": "testPlugin",
               "entry": "work.lclpnet.testPlugin.TestPlugin",
               "dependsOn": [],
