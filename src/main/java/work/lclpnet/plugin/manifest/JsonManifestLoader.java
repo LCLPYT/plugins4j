@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 
 public class JsonManifestLoader implements PluginManifestLoader {
 
-    private static final Predicate<Object> STRING = x -> x instanceof String s && !s.isBlank();
+    protected static final Predicate<Object> STRING = x -> x instanceof String s && !s.isBlank();
 
     @Override
     public PluginManifest load(InputStream in) throws IOException {
@@ -30,6 +30,10 @@ public class JsonManifestLoader implements PluginManifestLoader {
             throw new ManifestLoadException("Invalid manifest json", e);
         }
 
+        return loadFromJson(obj);
+    }
+
+    public PluginManifest loadFromJson(JSONObject obj) {
         require(obj, "version", STRING);
         final String version = obj.getString("version");
         if (!VERSION.equalsIgnoreCase(version)) throw new ManifestLoadException("Invalid manifest version");
@@ -48,23 +52,23 @@ public class JsonManifestLoader implements PluginManifestLoader {
         return new BasePluginManifest(version, id, entry, dependsOn);
     }
 
-    private static void require(JSONObject obj, String key, Predicate<Object> predicate) throws ManifestLoadException {
+    protected static void require(JSONObject obj, String key, Predicate<Object> predicate) throws ManifestLoadException {
         if (obj.has(key) && predicate.test(obj.get(key))) return;
 
         throw new ManifestLoadException("Manifest property %s is invalid".formatted(key));
     }
 
-    private static void optional(JSONObject obj, String key, Predicate<Object> predicate) throws ManifestLoadException {
+    protected static void optional(JSONObject obj, String key, Predicate<Object> predicate) throws ManifestLoadException {
         if (!obj.has(key) || predicate.test(obj.get(key))) return;
 
         throw new ManifestLoadException("Manifest property %s is invalid".formatted(key));
     }
 
-    private static Predicate<Object> array(Predicate<Object> elementPredicate) {
+    protected static Predicate<Object> array(Predicate<Object> elementPredicate) {
         return x -> x instanceof JSONArray a && stream(a).allMatch(elementPredicate);
     }
 
-    private static Stream<Object> stream(JSONArray a) {
+    protected static Stream<Object> stream(JSONArray a) {
         return StreamSupport.stream(a.spliterator(), false);
     }
 }
