@@ -80,6 +80,7 @@ public class DirectoryPluginDiscoveryService implements PluginDiscoveryService {
                 state.manifest = this.manifestLoader.load(in);
                 return true;  // the manifest loader succeeded. thus, the manifest is valid
             } catch (ManifestLoadException e) {
+                logger.warn("Invalid plugin manifest in jar %s".formatted(path), e);
                 return false;  // manifest is invalid
             } catch (IOException e) {
                 logger.warn("Failed to open plugin manifest in jar %s".formatted(path), e);
