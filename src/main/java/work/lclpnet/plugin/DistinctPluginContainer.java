@@ -103,9 +103,17 @@ public class DistinctPluginContainer implements PluginContainer {
             this.unloadPlugin(loaded);
             return Optional.empty();
         } else {
-            logger.info("Plugin '{}' has been loaded.", id);
+            onPluginLoaded(loaded);
             return Optional.of(loaded);
         }
+    }
+
+    /**
+     * Called when a plugin was loaded.
+     * @param plugin The plugin that was loaded.
+     */
+    protected void onPluginLoaded(LoadedPlugin plugin) {
+        logger.info("Plugin '{}' has been loaded.", plugin.getManifest().id());
     }
 
     public void ensurePluginCanBeLoaded(LoadablePlugin loadable) throws PluginLoadException {
@@ -167,7 +175,16 @@ public class DistinctPluginContainer implements PluginContainer {
         // manually invoke garbage collection; plugin classes are freed here, if they unregistered properly
         System.gc();
 
-        logger.info("Plugin '{}' unloaded.", id);
+        onPluginUnloaded(loadedPlugin);
+    }
+
+    /**
+     * Called when a plugin was unloaded.
+     * Careful! The plugin is no longer registered and should be able to be garbage collected after this method.
+     * @param plugin The unloaded plugin.
+     */
+    protected void onPluginUnloaded(LoadedPlugin plugin) {
+        logger.info("Plugin '{}' unloaded.", plugin.getManifest().id());
     }
 
     private void removePlugin(LoadedPlugin loadedPlugin) {
