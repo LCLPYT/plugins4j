@@ -197,4 +197,20 @@ class SimplePluginManagerTest {
         assertTrue(plugin.isPresent());
         assertEquals("pluginB", plugin.orElseThrow().getId());
     }
+
+    @Test
+    void getPlugin_instance_correct() {
+        final var loadedIds = new ArrayList<String>();
+        final var pluginA = new TestLoadablePlugin(loadedIds, "pluginA");
+
+        var discovery = new TestPluginDiscovery(pluginA);
+        var container = new DistinctPluginContainer(LOGGER);
+
+        var pluginManager = new SimplePluginManager(discovery, container);
+        var loaded = pluginManager.loadPlugin("pluginA").orElseThrow();
+        Plugin instance = loaded.getPlugin();
+
+        var plugin = pluginManager.getPlugin(instance);
+        assertEquals(loaded, plugin.orElseThrow());
+    }
 }

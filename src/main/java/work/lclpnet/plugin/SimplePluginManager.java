@@ -57,6 +57,15 @@ public class SimplePluginManager implements PluginManager {
     }
 
     @Override
+    public Optional<LoadedPlugin> getPlugin(Plugin pluginInstance) {
+        if (pluginInstance == null) return Optional.empty();
+
+        return getPlugins().stream()
+                .filter(loaded -> pluginInstance.equals(loaded.getPlugin()))
+                .findAny();
+    }
+
+    @Override
     public void unloadPlugin(LoadedPlugin plugin) {
         pluginContainer.unloadPlugin(plugin);
     }

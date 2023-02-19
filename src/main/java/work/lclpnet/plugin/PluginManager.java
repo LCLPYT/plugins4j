@@ -13,6 +13,8 @@ public interface PluginManager {
 
     Optional<LoadedPlugin> getPlugin(String id);
 
+    Optional<LoadedPlugin> getPlugin(Plugin pluginInstance);
+
     void reloadPlugin(LoadedPlugin loaded);
 
     void reloadPlugins(Set<LoadedPlugin> loaded);
