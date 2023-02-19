@@ -72,6 +72,22 @@ test {
     useJUnitPlatform()
 }
 
+processTestPluginResources {
+    inputs.property "version", project.version
+
+    filesMatching("plugin.json") {
+        expand "version": project.version
+    }
+}
+
+processProviderPluginResources {
+    inputs.property "version", project.version
+
+    filesMatching("plugin.json") {
+        expand "version": project.version
+    }
+}
+
 java {
     withSourcesJar()
 }
