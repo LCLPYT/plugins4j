@@ -167,7 +167,7 @@ public class DistinctPluginContainer implements PluginContainer {
 
         if (!isPluginLoaded(id)) return;
 
-        logger.info("Unloading plugin '{}'", id);
+        onPluginUnloading(loadedPlugin);
 
         // remove the plugin; separate into standalone method so that no references remain on the stack
         removePlugin(loadedPlugin);
@@ -176,6 +176,15 @@ public class DistinctPluginContainer implements PluginContainer {
         System.gc();
 
         onPluginUnloaded(loadedPlugin);
+    }
+
+    /**
+     * Called just before a plugin is unloaded.
+     * Implementations can use this method to perform additional cleanup before the loaded plugin instance is lost.
+     * @param plugin The unloading plugin.
+     */
+    protected void onPluginUnloading(LoadedPlugin plugin) {
+        logger.info("Unloading plugin '{}'", plugin.getId());
     }
 
     /**
