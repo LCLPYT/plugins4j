@@ -37,9 +37,21 @@ public class PluginClassLoader extends URLClassLoader {
 
         Constructor<?> constructor;
         try {
+            constructor = c.getConstructor(PluginInit.class);
+        } catch (NoSuchMethodException ignored) {
+            constructor = null;
+        }
+
+        if (constructor != null) {
+            var init = new PluginInit(manifest);
+
+            return (Plugin) constructor.newInstance(init);
+        }
+
+        try {
             constructor = c.getConstructor();
         } catch (NoSuchMethodException e) {
-            throw new NoSuchMethodException("Class %s must have a constructor with no arguments!".formatted(entryPoint));
+            throw new NoSuchMethodException("Class %s has no constructor () or (PluginInit)".formatted(entryPoint));
         }
 
         return (Plugin) constructor.newInstance();
