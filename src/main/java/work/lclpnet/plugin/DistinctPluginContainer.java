@@ -68,10 +68,6 @@ public class DistinctPluginContainer implements PluginContainer {
     public Optional<LoadedPlugin> loadPlugin(LoadablePlugin loadable) {
         lock.lock();
 
-        final var id = loadable.getManifest().id();
-
-        logger.info("Loading plugin '{}'", id);
-
         // check if the plugin can be loaded
         try {
             ensurePluginCanBeLoaded(loadable);
@@ -80,6 +76,7 @@ public class DistinctPluginContainer implements PluginContainer {
             throw t;
         }
 
+        final var id = loadable.getManifest().id();
         final var loaded = loadable.load();
 
         loadedPlugins.put(id, loaded);
@@ -122,7 +119,7 @@ public class DistinctPluginContainer implements PluginContainer {
      * @param plugin The loaded plugin, which is about to load.
      */
     protected void onPluginLoading(@SuppressWarnings("unused") LoadedPlugin plugin) {
-
+        logger.info("Loading plugin '{}'", plugin.getId());
     }
 
     /**
