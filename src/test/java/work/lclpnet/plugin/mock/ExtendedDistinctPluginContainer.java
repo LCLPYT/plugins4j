@@ -25,6 +25,13 @@ public class ExtendedDistinctPluginContainer extends DistinctPluginContainer {
     }
 
     @Override
+    protected void onPluginLoading(LoadedPlugin plugin) {
+        super.onPluginLoading(plugin);
+
+        System.out.println("Extended plugin loading...");
+    }
+
+    @Override
     protected void onPluginLoaded(LoadedPlugin plugin) {
         super.onPluginLoaded(plugin);
 

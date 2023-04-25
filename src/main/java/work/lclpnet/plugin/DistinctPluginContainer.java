@@ -86,26 +86,43 @@ public class DistinctPluginContainer implements PluginContainer {
 
         addToDependencyGraph(loadable, loaded);
 
-        Plugin plugin = loaded.getPlugin();
-
-        boolean loadError = false;
+        boolean error = false;
 
         try {
-            plugin.load();
+            onPluginLoading(loaded);
         } catch (Throwable t) {
-            logger.error("Plugin '%s' threw an error on load. Unloading the plugin immediately...".formatted(id), t);
-            loadError = true;
+            logger.error("PluginContainer error. Unloading the plugin immediately...", t);
+            error = true;
+        }
+
+        if (!error) {
+            Plugin plugin = loaded.getPlugin();
+
+            try {
+                plugin.load();
+            } catch (Throwable t) {
+                logger.error("Plugin '%s' threw an error on load. Unloading the plugin immediately...".formatted(id), t);
+                error = true;
+            }
         }
 
         lock.unlock();
 
-        if (loadError) {
+        if (error) {
             this.unloadPlugin(loaded);
             return Optional.empty();
         } else {
             onPluginLoaded(loaded);
             return Optional.of(loaded);
         }
+    }
+
+    /**
+     * Called after a plugin was created and before it is loaded.
+     * @param plugin The loaded plugin, which is about to load.
+     */
+    protected void onPluginLoading(@SuppressWarnings("unused") LoadedPlugin plugin) {
+
     }
 
     /**
