@@ -5,10 +5,13 @@ import work.lclpnet.plugin.manifest.JsonManifestLoader;
 import work.lclpnet.plugin.manifest.PluginManifest;
 import work.lclpnet.plugin.mock.TestManifestLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.jar.JarFile;
 
@@ -62,6 +65,45 @@ class UrlLoadablePluginTest {
             assertNotNull(loaded.getPlugin());
             assertEquals(testPlugin, loaded.getSource());
             assertEquals("test", loaded.getId());
+            assertEquals(manifest, loaded.getManifest());
+        }
+    }
+
+    @Test
+    void load_multiUrlPlugin_succeeds() {
+        String testProp = System.getProperty("test.providerPluginClasspath");
+        if (testProp == null) {
+            throw new IllegalStateException("System property 'test.providerPluginClasspath' not set. Make sure to run tests using Gradle");
+        }
+
+        Path[] testPluginPaths = Arrays.stream(testProp.split(File.pathSeparator))
+                .map(Path::of)
+                .toArray(Path[]::new);
+
+        assertTrue(Arrays.stream(testPluginPaths).allMatch(Files::isDirectory));
+
+        var manifest = TestManifestLoader.manifest(
+                "provider",
+                "work.lclpnet.provider.ProviderPlugin",
+                Collections.emptySet()
+        );
+
+        URL[] urls = Arrays.stream(testPluginPaths).map(path -> {
+            try {
+                return path.toUri().toURL();
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }).toArray(URL[]::new);
+
+        try (var clContainer = new DefaultClassLoaderContainer()) {
+            var loadable = new UrlLoadablePlugin(manifest, urls, testPluginPaths, clContainer);
+
+            var loaded = loadable.load();
+            assertNotNull(loaded);
+            assertNotNull(loaded.getPlugin());
+            assertEquals(testPluginPaths, loaded.getSource());
+            assertEquals("provider", loaded.getId());
             assertEquals(manifest, loaded.getManifest());
         }
     }

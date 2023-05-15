@@ -2,6 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.util.stream.Collectors
 
 plugins {
     id 'java'
@@ -190,6 +191,13 @@ deploy.configure {
 
 deployPlugins.configure {
     dependsOn build
+}
+
+tasks.test.configure {
+    dependsOn(tasks.providerPluginClasses)
+
+    systemProperty("test.providerPluginClasspath", sourceSets.providerPlugin.getOutput().files.stream()
+            .map(file -> file.getAbsolutePath()).collect(Collectors.joining(File.pathSeparator)))
 }
 
 publishing {

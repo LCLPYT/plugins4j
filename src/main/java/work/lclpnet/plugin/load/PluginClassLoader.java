@@ -16,12 +16,26 @@ public class PluginClassLoader extends URLClassLoader {
     private final ClassResolver classResolver;
     private final Map<String, Integer> delegatedLoading = new HashMap<>();
 
-
     /**
      * Creates a new JarClassLoader for the specified url.
+     * @param url The url to use as classpath
+     * @param parent A parent class loader used to find other classes.
+     * @param manifest The plugin manifest.
+     * @param classResolver A class resolver for plugin class loaders interop between each other.
      */
     public PluginClassLoader(URL url, ClassLoader parent, PluginManifest manifest, ClassResolver classResolver) {
-        super(new URL[] { Objects.requireNonNull(url) }, parent);
+        this(new URL[] { Objects.requireNonNull(url) }, parent, manifest, classResolver);
+    }
+
+    /**
+     * Creates a new JarClassLoader for the specified urls.
+     * @param urls The urls to use as classpath.
+     * @param parent A parent class loader used to find other classes.
+     * @param manifest The plugin manifest.
+     * @param classResolver A class resolver for plugin class loaders interop between each other.
+     */
+    public PluginClassLoader(URL[] urls, ClassLoader parent, PluginManifest manifest, ClassResolver classResolver) {
+        super(Objects.requireNonNull(urls), parent);
 
         this.manifest = Objects.requireNonNull(manifest);
         this.classResolver = classResolver;
