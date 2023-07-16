@@ -15,10 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DirectoryPluginDiscoveryServiceTest {
 
+    static final int EXPECTED_PLUGINS = 2;
     private static final Logger LOGGER = LoggerFactory.getLogger("test");
 
     @Test
-    void discover_one_isFound() throws IOException {
+    void discover_correct_isFound() throws IOException {
         var testPluginsDir = Path.of("src/test/resources/plugins");
         assertTrue(Files.isDirectory(testPluginsDir));
 
@@ -27,7 +28,7 @@ class DirectoryPluginDiscoveryServiceTest {
         try (var clContainer = new DefaultClassLoaderContainer()) {
             var discovery = new DirectoryPluginDiscoveryService(testPluginsDir, manifestLoader, clContainer, LOGGER);
 
-            assertEquals(1, discovery.discover().count());
+            assertEquals(EXPECTED_PLUGINS, discovery.discover().count());
         }
     }
 

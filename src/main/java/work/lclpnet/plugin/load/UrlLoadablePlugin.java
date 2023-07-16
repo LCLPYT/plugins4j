@@ -39,7 +39,7 @@ public class UrlLoadablePlugin implements LoadablePlugin {
     public LoadedPlugin load() throws PluginLoadException {
         Plugin plugin;
 
-        var classLoader = new PluginClassLoader(urls, getClass().getClassLoader(), manifest, classLoaderContainer);
+        var classLoader = new PluginClassLoader(urls, getClass().getClassLoader(), manifest, classLoaderContainer, classLoaderContainer);
 
         try {
             plugin = classLoader.loadPlugin();

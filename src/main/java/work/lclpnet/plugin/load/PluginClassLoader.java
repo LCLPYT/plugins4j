@@ -2,10 +2,13 @@ package work.lclpnet.plugin.load;
 
 import work.lclpnet.plugin.Plugin;
 import work.lclpnet.plugin.manifest.PluginManifest;
+import work.lclpnet.plugin.util.CompoundEnumeration;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,31 +17,40 @@ public class PluginClassLoader extends URLClassLoader {
 
     private final PluginManifest manifest;
     private final ClassResolver classResolver;
-    private final Map<String, Integer> delegatedLoading = new HashMap<>();
+    private final ResourceResolver resourceResolver;
+    private final Map<String, Integer> delegatedClassLoading = new HashMap<>();
+    private final Map<String, Integer> delegatedResourceLoading = new HashMap<>();
 
     /**
      * Creates a new JarClassLoader for the specified url.
-     * @param url The url to use as classpath
-     * @param parent A parent class loader used to find other classes.
-     * @param manifest The plugin manifest.
-     * @param classResolver A class resolver for plugin class loaders interop between each other.
+     *
+     * @param url              The url to use as classpath
+     * @param parent           A parent class loader used to find other classes.
+     * @param manifest         The plugin manifest.
+     * @param classResolver    A class resolver for plugin class loaders interop between each other.
+     * @param resourceResolver A resource resolver for plugin class laoders interop between each other.
      */
-    public PluginClassLoader(URL url, ClassLoader parent, PluginManifest manifest, ClassResolver classResolver) {
-        this(new URL[] { Objects.requireNonNull(url) }, parent, manifest, classResolver);
+    public PluginClassLoader(URL url, ClassLoader parent, PluginManifest manifest, ClassResolver classResolver,
+                             ResourceResolver resourceResolver) {
+        this(new URL[] { Objects.requireNonNull(url) }, parent, manifest, classResolver, resourceResolver);
     }
 
     /**
      * Creates a new JarClassLoader for the specified urls.
-     * @param urls The urls to use as classpath.
-     * @param parent A parent class loader used to find other classes.
-     * @param manifest The plugin manifest.
-     * @param classResolver A class resolver for plugin class loaders interop between each other.
+     *
+     * @param urls             The urls to use as classpath.
+     * @param parent           A parent class loader used to find other classes.
+     * @param manifest         The plugin manifest.
+     * @param classResolver    A class resolver for plugin class loaders interop between each other.
+     * @param resourceResolver A resource resolver for plugin class laoders interop between each other.
      */
-    public PluginClassLoader(URL[] urls, ClassLoader parent, PluginManifest manifest, ClassResolver classResolver) {
+    public PluginClassLoader(URL[] urls, ClassLoader parent, PluginManifest manifest, ClassResolver classResolver,
+                             ResourceResolver resourceResolver) {
         super(Objects.requireNonNull(urls), parent);
 
         this.manifest = Objects.requireNonNull(manifest);
         this.classResolver = classResolver;
+        this.resourceResolver = resourceResolver;
     }
 
     public Plugin loadPlugin() throws ReflectiveOperationException {
@@ -79,8 +91,8 @@ public class PluginClassLoader extends URLClassLoader {
         } catch (ClassNotFoundException ignored) {}
 
         // check if class load was delegated by another PluginClassLoader
-        synchronized (delegatedLoading) {
-            if (this.delegatedLoading.containsKey(name)) {
+        synchronized (delegatedClassLoading) {
+            if (this.delegatedClassLoading.containsKey(name)) {
                 throw new ClassNotFoundException(name);
             }
         }
@@ -96,31 +108,65 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     Class<?> loadClassDelegated(String name) throws ClassNotFoundException {
-        incr(name);
+        synchronized (delegatedClassLoading) {
+            incr(delegatedClassLoading, name);
+        }
 
         try {
             return this.loadClass(name);
         } finally {
-            decr(name);
+            synchronized (delegatedClassLoading) {
+                decr(delegatedClassLoading, name);
+            }
         }
     }
 
-    private void incr(String name) {
-        synchronized (delegatedLoading) {
-            var count = this.delegatedLoading.get(name);
-            if (count == null) count = 0;
+    private static void incr(Map<String, Integer> map, String name) {
+        var count = map.get(name);
+        if (count == null) count = 0;
 
-            this.delegatedLoading.put(name, ++count);
-        }
+        map.put(name, ++count);
     }
 
-    private void decr(String name) {
-        synchronized (delegatedLoading) {
-            var count = this.delegatedLoading.get(name);
-            if (count == null) return;
+    private static void decr(Map<String, Integer> map, String name) {
+        var count = map.get(name);
+        if (count == null) return;
 
-            if (--count <= 0) this.delegatedLoading.remove(name);
-            else this.delegatedLoading.put(name, count);
+        if (--count <= 0) map.remove(name);
+        else map.put(name, count);
+    }
+
+    @Override
+    public Enumeration<URL> findResources(String name) throws IOException {
+        Enumeration<URL> ownResources = super.findResources(name);
+
+        synchronized (delegatedResourceLoading) {
+            // prevent infinite delegation
+            if (delegatedResourceLoading.containsKey(name)) {
+                return ownResources;
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        Enumeration<URL>[] tmp = (Enumeration<URL>[]) new Enumeration<?>[2];
+
+        tmp[0] = ownResources;
+        tmp[1] = resourceResolver.resolveResources(name, this);
+
+        return new CompoundEnumeration<>(tmp);
+    }
+
+    Enumeration<URL> getResourcesDelegated(String name) throws IOException {
+        synchronized (delegatedResourceLoading) {
+            incr(delegatedResourceLoading, name);
+        }
+
+        try {
+            return this.getResources(name);
+        } finally {
+            synchronized (delegatedResourceLoading) {
+                decr(delegatedResourceLoading, name);
+            }
         }
     }
 }

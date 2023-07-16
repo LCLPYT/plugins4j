@@ -39,7 +39,7 @@ class MultiPluginDiscoveryServiceTest {
             var multiDiscovery = new MultiPluginDiscoveryService(discoveryA, discoveryB);
             var plugins = multiDiscovery.discover().toList();
 
-            assertEquals(2, plugins.size());
+            assertEquals(DirectoryPluginDiscoveryServiceTest.EXPECTED_PLUGINS + 1, plugins.size());
         }
     }
 

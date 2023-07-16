@@ -52,6 +52,24 @@ class ClasspathPluginDiscoveryServiceTest {
         }
     }
 
+    @Test
+    void discover_jar_one() throws IOException {
+        var pluginsPath = Path.of("src/test/resources/plugins");
+        assertTrue(Files.isDirectory(pluginsPath));
+
+        Path path = pluginsPath.resolve("testPlugin.jar");
+        assertTrue(Files.isRegularFile(path));
+
+        var manifestLoader = new JsonManifestLoader();
+
+        try (var clContainer = new DefaultClassLoaderContainer()) {
+            var discovery = new ClasspathPluginDiscoveryService(List.of(), manifestLoader, clContainer, LOGGER);
+
+            var optPlugin = discovery.discoverFrom(path);
+            assertTrue(optPlugin.isPresent());
+        }
+    }
+
     private List<URL[]> getProvidedClasspath() {
         String testProp = System.getProperty("test.providerPluginClasspath");
         if (testProp == null) {
