@@ -1,6 +1,6 @@
 package work.lclpnet.plugin.load;
 
-public interface ClassLoaderContainer extends ClassResolver {
+public interface ClassLoaderContainer extends ClassResolver, ResourceResolver {
 
     void add(ClassLoader classLoader);
 
